@@ -1,0 +1,38 @@
+name: movie_by_mood
+description: "Discover movies that match your mood. Search by your favorite actors and find films that suit your current feelings - happy, romantic, thrilling, and more."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
+  cached_network_image: ^3.3.0
+  flutter_launcher_icons: ^0.13.1
+  url_launcher: ^6.2.2
+  flutter_dotenv: ^5.1.0
+  cupertino_icons: ^1.0.8
+  flutter_staggered_grid_view: ^0.7.0
+  google_mobile_ads: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
