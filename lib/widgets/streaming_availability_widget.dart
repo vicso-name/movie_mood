@@ -27,9 +27,6 @@ class _StreamingAvailabilityWidgetState
     super.initState();
     // Загружаем данные после построения виджета
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print(
-        'StreamingWidget: initState - Loading for IMDB ID: ${widget.imdbId}',
-      );
       context.read<StreamingProvider>().loadStreamingAvailability(
         widget.imdbId,
       );
@@ -38,15 +35,8 @@ class _StreamingAvailabilityWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Selector<StreamingProvider, StreamingLoadingState>(
-      selector: (context, provider) {
-        print('StreamingWidget: Selector called, state: ${provider.state}');
-        return provider.state;
-      },
-      builder: (context, state, child) {
-        print('StreamingWidget: Selector builder called with state: $state');
-        final provider = Provider.of<StreamingProvider>(context, listen: false);
-
+    return Consumer<StreamingProvider>(
+      builder: (context, provider, child) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -71,25 +61,17 @@ class _StreamingAvailabilityWidgetState
   }
 
   Widget _buildContent(StreamingProvider provider) {
-    print(
-      '🔥🔥🔥 _buildContent DEFINITELY CALLED with state: ${provider.state} 🔥🔥🔥',
-    );
-
     switch (provider.state) {
       case StreamingLoadingState.loading:
-        print('StreamingWidget: Returning loading state');
         return _buildLoadingState();
 
       case StreamingLoadingState.error:
-        print('StreamingWidget: Returning error state');
         return _buildErrorState(provider);
 
       case StreamingLoadingState.notFound:
-        print('StreamingWidget: Returning not found state');
         return _buildNotFoundState();
 
       case StreamingLoadingState.locked:
-        print('StreamingWidget: Returning locked state');
         return _buildLockedState(provider);
 
       case StreamingLoadingState.showingAd:
@@ -168,12 +150,8 @@ class _StreamingAvailabilityWidgetState
   }
 
   Widget _buildLockedState(StreamingProvider provider) {
-    print('StreamingWidget: _buildLockedState called!');
-
     final stats = provider.getAvailabilityStats();
     final totalSources = stats['total'] ?? 0;
-
-    print('StreamingWidget: Total sources: $totalSources');
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -216,8 +194,8 @@ class _StreamingAvailabilityWidgetState
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
-                print('StreamingWidget: Ad button pressed!');
-                provider.showAdToUnlock();
+                final streamingProvider = context.read<StreamingProvider>();
+                streamingProvider.showAdToUnlock();
               },
               icon: const Icon(Icons.play_arrow, size: 20),
               label: const Text(

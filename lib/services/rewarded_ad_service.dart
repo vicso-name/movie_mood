@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+enum AdResult { success, failed, dismissed, notReady, timeout }
+
 class RewardedAdService {
   static RewardedAdService? _instance;
   static RewardedAdService get instance => _instance ??= RewardedAdService._();
@@ -11,12 +13,20 @@ class RewardedAdService {
   RewardedAd? _rewardedAd;
   bool _isAdReady = false;
   bool _isLoading = false;
+  bool _isShowing = false;
   Completer<void>? _loadingCompleter;
+
+  // Для отслеживания результатов
+  bool _rewardEarned = false;
+  bool _adShown = false;
+  bool _adDismissed = false;
 
   // Production ad unit IDs - замените на реальные ID
   static const String _androidAdUnitId =
       'ca-app-pub-3940256099942544/5224354917';
   static const String _iosAdUnitId = 'ca-app-pub-3940256099942544/1712485313';
+
+  static const Duration _loadTimeout = Duration(seconds: 8);
 
   String get _adUnitId {
     if (Platform.isAndroid) {
@@ -28,21 +38,29 @@ class RewardedAdService {
     }
   }
 
-  /// Инициализация AdMob
   static Future<void> initialize() async {
-    await MobileAds.instance.initialize();
+    try {
+      await MobileAds.instance.initialize();
+    } catch (e) {
+      print('🚨 AdMob initialization failed: $e');
+    }
   }
 
-  /// Загрузка rewarded рекламы
-  Future<void> loadRewardedAd() async {
-    // Если уже загружается, возвращаем существующий Future
+  /// Загрузка rewarded рекламы с таймаутом
+  Future<bool> loadRewardedAd() async {
+    // Если уже загружается, ждем результат
     if (_isLoading) {
-      return _loadingCompleter?.future ?? Future.value();
+      try {
+        await _loadingCompleter?.future.timeout(_loadTimeout);
+        return _isAdReady;
+      } catch (e) {
+        return false;
+      }
     }
 
-    // Если реклама уже готова, ничего не делаем
+    // Если реклама уже готова
     if (_isAdReady && _rewardedAd != null) {
-      return;
+      return true;
     }
 
     _isLoading = true;
@@ -58,19 +76,26 @@ class RewardedAdService {
             _isAdReady = true;
             _isLoading = false;
             _setAdCallbacks();
-            _loadingCompleter?.complete();
-            _loadingCompleter = null;
+            if (!_loadingCompleter!.isCompleted) {
+              _loadingCompleter!.complete();
+            }
           },
           onAdFailedToLoad: (LoadAdError error) {
             _cleanup();
-            _loadingCompleter?.complete();
-            _loadingCompleter = null;
+            if (!_loadingCompleter!.isCompleted) {
+              _loadingCompleter!.complete();
+            }
           },
         ),
       );
+
+      // Ждем завершения загрузки с таймаутом
+      await _loadingCompleter!.future.timeout(_loadTimeout);
+      return _isAdReady;
     } catch (e) {
       _cleanup();
-      _loadingCompleter?.complete();
+      return false;
+    } finally {
       _loadingCompleter = null;
     }
   }
@@ -79,12 +104,13 @@ class RewardedAdService {
   void _setAdCallbacks() {
     _rewardedAd?.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
-        // Можно добавить аналитику здесь
+        _adShown = true;
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
+        _adDismissed = true;
         _disposeCurrentAd();
-        // Предзагружаем следующую рекламу асинхронно
-        unawaited(loadRewardedAd());
+        // Асинхронно загружаем следующую рекламу
+        _loadNextAd();
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
         _disposeCurrentAd();
@@ -92,36 +118,73 @@ class RewardedAdService {
     );
   }
 
-  /// Показ рекламы с наградой
-  Future<bool> showRewardedAd() async {
-    // Если реклама не готова, пытаемся загрузить
-    if (!_isAdReady || _rewardedAd == null) {
-      await loadRewardedAd();
+  /// Показ рекламы с детальным логированием
+  Future<AdResult> showRewardedAd() async {
+    if (_isShowing) {
+      return AdResult.failed;
+    }
 
-      // Если после загрузки реклама все еще не готова
-      if (!_isAdReady || _rewardedAd == null) {
-        return false;
+    // Проверяем готовность рекламы
+    if (!_isAdReady || _rewardedAd == null) {
+      final loaded = await loadRewardedAd();
+      if (!loaded) {
+        return AdResult.notReady;
       }
     }
 
-    final completer = Completer<bool>();
-    bool rewardEarned = false;
+    _isShowing = true;
+    _rewardEarned = false;
+    _adShown = false;
+    _adDismissed = false;
+
+    final completer = Completer<AdResult>();
 
     try {
       await _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-          rewardEarned = true;
+          _rewardEarned = true;
         },
       );
-
-      // Небольшая задержка для обработки callback'а
-      await Future.delayed(const Duration(milliseconds: 100));
-      completer.complete(rewardEarned);
+      // Ждем результат с таймаутом
+      await Future.delayed(const Duration(milliseconds: 1000));
+      int attempts = 0;
+      while (!_rewardEarned && _adShown && !_adDismissed && attempts < 5) {
+        await Future.delayed(const Duration(milliseconds: 1000));
+        attempts++;
+      }
+      // Определяем результат
+      AdResult result;
+      if (_rewardEarned) {
+        result = AdResult.success;
+      } else if (_adShown && _adDismissed) {
+        result = AdResult.dismissed;
+      } else if (_adShown && !_rewardEarned && attempts >= 5) {
+        result = AdResult.success;
+      } else {
+        result = AdResult.failed;
+      }
+      completer.complete(result);
     } catch (e) {
-      completer.complete(false);
+      completer.complete(AdResult.failed);
+    } finally {
+      _isShowing = false;
     }
 
     return completer.future;
+  }
+
+  /// Асинхронная загрузка следующей рекламы
+  void _loadNextAd() {
+    // Небольшая задержка перед загрузкой следующей рекламы
+    Future.delayed(const Duration(seconds: 1), () {
+      loadRewardedAd()
+          .then((success) {
+            print('🔄 Next ad preload result: $success');
+          })
+          .catchError((e) {
+            print('🚨 Next ad preload error: $e');
+          });
+    });
   }
 
   /// Очистка состояния после ошибки загрузки
@@ -130,6 +193,7 @@ class RewardedAdService {
     _rewardedAd = null;
     _isAdReady = false;
     _isLoading = false;
+    _isShowing = false;
   }
 
   /// Очистка текущей рекламы
@@ -140,10 +204,13 @@ class RewardedAdService {
   }
 
   /// Проверка готовности рекламы
-  bool get isAdReady => _isAdReady && _rewardedAd != null;
+  bool get isAdReady => _isAdReady && _rewardedAd != null && !_isShowing;
 
   /// Проверка процесса загрузки
   bool get isLoading => _isLoading;
+
+  /// Проверка показа рекламы
+  bool get isShowing => _isShowing;
 
   /// Освобождение ресурсов
   void dispose() {
@@ -151,10 +218,4 @@ class RewardedAdService {
     _loadingCompleter = null;
     _cleanup();
   }
-}
-
-/// Утилита для неблокирующего выполнения Future
-void unawaited(Future<void> future) {
-  // Просто запускаем Future без ожидания
-  // В production можно добавить обработку ошибок через future.catchError()
 }

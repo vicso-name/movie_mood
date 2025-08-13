@@ -15,6 +15,7 @@ Future<void> main() async {
 
   // Инициализируем AdMob
   await RewardedAdService.initialize();
+  RewardedAdService.instance.loadRewardedAd();
 
   // Загружаем .env файл
   await dotenv.load(fileName: ".env");

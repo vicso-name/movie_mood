@@ -202,7 +202,7 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
         ),
         delegate: SliverChildBuilderDelegate(
           _buildGridItem,
-          childCount: Moods.all.length + 1,
+          childCount: Moods.all.length,
         ),
       ),
     );
@@ -212,13 +212,6 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
     const baseDelay = 300;
     const itemDelay = 80;
     final delay = Duration(milliseconds: baseDelay + (index * itemDelay));
-
-    if (index == Moods.all.length) {
-      return SlideInAnimation(
-        delay: delay,
-        child: _SurpriseMeCard(onPressed: _onSurpriseMePressed),
-      );
-    }
 
     final mood = Moods.all[index];
     return SlideInAnimation(
@@ -236,11 +229,6 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
         direction: AxisDirection.left,
       ),
     );
-  }
-
-  void _onSurpriseMePressed() {
-    context.read<MovieProvider>().loadRandomMovies();
-    Navigator.push(context, ScalePageRoute(child: const MovieListScreen()));
   }
 
   void _navigateToActorSearch() {
@@ -327,59 +315,6 @@ class _FavoritesButton extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _SurpriseMeCard extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _SurpriseMeCard({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return PulseAnimationButton(
-      onTap: onPressed,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.accent, AppColors.accent.withValues(alpha: 0.8)],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.accent.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text('🎲', style: TextStyle(fontSize: 32)),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              AppStrings.surpriseMe,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }

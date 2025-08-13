@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import '../models/streaming_availability.dart';
 import '../models/app_error.dart';
@@ -93,22 +92,58 @@ class StreamingProvider extends ChangeNotifier {
     if (_state != StreamingLoadingState.locked) {
       return;
     }
-
     _setState(StreamingLoadingState.showingAd);
 
     try {
-      // ВАЖНО: Разблокируем контент в любом случае после попытки показа рекламы
-      // Это гарантирует что пользователь получит доступ к контенту
-      _isUnlockedForCurrentMovie = true;
-      _setState(StreamingLoadingState.unlocked);
+      // Пытаемся показать рекламу
+      final adResult = await RewardedAdService.instance.showRewardedAd();
+      switch (adResult) {
+        case AdResult.success:
+          _isUnlockedForCurrentMovie = true;
+          _setState(StreamingLoadingState.unlocked);
+          _preloadNextAd();
+          break;
 
-      // Предзагружаем следующую рекламу для следующего фильма
-      RewardedAdService.instance.loadRewardedAd();
+        case AdResult.dismissed:
+          _setState(StreamingLoadingState.locked);
+          break;
+
+        case AdResult.failed:
+        case AdResult.notReady:
+        case AdResult.timeout:
+          await _handleAdFailure(adResult);
+          break;
+      }
     } catch (e) {
-      // При любой ошибке тоже разблокируем контент
-      _isUnlockedForCurrentMovie = true;
-      _setState(StreamingLoadingState.unlocked);
+      await _handleAdFailure(AdResult.failed);
     }
+  }
+
+  /// Обработка сбоев рекламы с fallback стратегией
+  Future<void> _handleAdFailure(AdResult failureReason) async {
+    // Стратегия 1: Пробуем загрузить рекламу еще раз
+    final reloadSuccess = await RewardedAdService.instance.loadRewardedAd();
+    if (reloadSuccess) {
+      _setState(StreamingLoadingState.locked);
+      return;
+    }
+    // Стратегия 2: Если перезагрузка не помогла - разблокируем контент
+    print('🆓 FALLBACK: Unable to load ads, unlocking content for user');
+    _isUnlockedForCurrentMovie = true;
+    _setState(StreamingLoadingState.unlocked);
+    _preloadNextAd();
+  }
+
+  /// Предзагрузка следующей рекламы
+  void _preloadNextAd() {
+    RewardedAdService.instance
+        .loadRewardedAd()
+        .then((success) {
+          print('📱 Next ad preload result: $success');
+        })
+        .catchError((e) {
+          print('🚨 Next ad preload failed: $e');
+        });
   }
 
   /// Повторная попытка загрузки
