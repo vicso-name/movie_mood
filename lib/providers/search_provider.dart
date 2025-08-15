@@ -73,6 +73,90 @@ class SearchProvider extends ChangeNotifier {
     }
   }
 
+  // 🎬 Поиск топ-фильмов по списку IMDb ID
+  Future<void> searchTopMovies(List<String> imdbIds) async {
+    _setState(SearchState.loading);
+    _error = null;
+
+    try {
+      print('🔍 SearchProvider: Loading top movies for ${imdbIds.length} IDs');
+
+      _searchResults = await _movieService.getTopMoviesByIds(imdbIds);
+
+      // Дополнительная фильтрация на уровне provider
+      _searchResults = _searchResults
+          .where((movie) => movie.hasValidPoster)
+          .toList();
+
+      if (_searchResults.isEmpty) {
+        _error = AppError.notFound();
+        _setState(SearchState.error);
+      } else {
+        _setState(SearchState.loaded);
+      }
+    } catch (e) {
+      if (e is AppError) {
+        _error = e;
+      } else {
+        _error = AppError.unknown(e.toString());
+      }
+      _searchResults = [];
+      _setState(SearchState.error);
+    }
+  }
+
+  Future<void> loadRandomTopMovies({int count = 20}) async {
+    _setState(SearchState.loading);
+    _error = null;
+
+    try {
+      print('🎲 SearchProvider: Loading random top movies');
+
+      _searchResults = await _movieService.getRandomTopMovies(count: count);
+
+      if (_searchResults.isEmpty) {
+        _error = AppError.notFound();
+        _setState(SearchState.error);
+      } else {
+        _setState(SearchState.loaded);
+      }
+    } catch (e) {
+      if (e is AppError) {
+        _error = e;
+      } else {
+        _error = AppError.unknown(e.toString());
+      }
+      _searchResults = [];
+      _setState(SearchState.error);
+    }
+  }
+
+  Future<void> loadMixedTopMovies({int moviesPerCategory = 5}) async {
+    _setState(SearchState.loading);
+    _error = null;
+
+    try {
+      _searchResults = await _movieService.getMixedTopMovies(
+        moviesPerCategory: moviesPerCategory,
+      );
+
+      if (_searchResults.isEmpty) {
+        _error = AppError.notFound();
+        _setState(SearchState.error);
+      } else {
+        _setState(SearchState.loaded);
+      }
+    } catch (e) {
+      if (e is AppError) {
+        _error = e;
+      } else {
+        _error = AppError.unknown(e.toString());
+      }
+      _searchResults = [];
+      _setState(SearchState.error);
+    }
+  }
+
   // Получение списка популярных актеров
   List<String> getPopularActors() {
     return ActorsDatabase.getPopularActors();

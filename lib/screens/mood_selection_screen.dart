@@ -9,6 +9,7 @@ import '../providers/favorites_provider.dart';
 import 'movie_list_screen.dart';
 import 'favorites_screen.dart';
 import 'actor_search_screen.dart';
+import 'top_movies_screen.dart'; // 🔥 НОВЫЙ ИМПОРТ
 import '../widgets/custom_page_route.dart';
 import '../widgets/animated_widgets.dart';
 
@@ -58,36 +59,30 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
 
   Widget _buildModernSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 160.0, // Уменьшаем высоту
+      expandedHeight: 160.0,
       floating: false,
       pinned: true,
       snap: false,
       backgroundColor: AppColors.background,
       elevation: 0,
-      // Современный способ настройки цвета системной панели
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarBrightness: Brightness.dark,
         statusBarIconBrightness: Brightness.light,
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
-      // Действия в правом верхнем углу
+      // 🔥 ОБНОВЛЕНО: Добавлены кнопки в верхнюю панель
       actions: [_buildActionButtons(), const SizedBox(width: 8)],
-      // Гибкое пространство с анимацией
       flexibleSpace: FlexibleSpaceBar(
-        // Настройки анимации заголовка
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16, right: 16),
-        expandedTitleScale: 1.0, // Убираем автоматическое масштабирование
-        // Кастомный заголовок с анимацией
+        expandedTitleScale: 1.0,
         title: LayoutBuilder(
           builder: (context, constraints) {
-            // Вычисляем прогресс сворачивания
             const expandedHeight = 200.0;
             final minHeight =
                 kToolbarHeight + MediaQuery.of(context).padding.top;
             final currentHeight = constraints.maxHeight;
 
-            // Нормализуем прогресс от 0 до 1
             final progress =
                 1.0 -
                 ((currentHeight - minHeight) / (expandedHeight - minHeight))
@@ -96,8 +91,6 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
             return _buildAnimatedTitle(progress);
           },
         ),
-
-        // Фоновый градиент
         background: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -148,7 +141,6 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
   }
 
   Widget _buildAnimatedTitle(double progress) {
-    // Анимация для collapsed состояния
     final titleOpacity = progress > 0.7
         ? ((progress - 0.7) / 0.3).clamp(0.0, 1.0)
         : 0.0;
@@ -168,16 +160,29 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
     );
   }
 
+  // 🔥 ОБНОВЛЕНО: Добавлена кнопка Top Movies
   Widget _buildActionButtons() {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Кнопка поиска по актерам
         _ActionButton(
           onPressed: _navigateToActorSearch,
           icon: Icons.person_search,
           color: AppColors.primary,
+          tooltip: 'Search by Actor',
         ),
         const SizedBox(width: 8),
+
+        _ActionButton(
+          onPressed: _navigateToTopMovies,
+          icon: Icons.emoji_events,
+          color: const Color(0xFFFFD700),
+          tooltip: 'Top Movies',
+        ),
+        const SizedBox(width: 8),
+
+        // Кнопка избранного
         Consumer<FavoritesProvider>(
           builder: (context, favoritesProvider, child) {
             return _FavoritesButton(
@@ -241,26 +246,41 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
     );
   }
 
+  // 🔥 НОВЫЙ МЕТОД: Переход к топ фильмам
+  void _navigateToTopMovies() {
+    Navigator.push(
+      context,
+      SlidePageRoute(
+        child: const TopMoviesScreen(),
+        direction: AxisDirection.down, // Слайд сверху вниз для премиум-ощущения
+      ),
+    );
+  }
+
   void _navigateToFavorites() {
     Navigator.push(context, FadePageRoute(child: const FavoritesScreen()));
   }
 }
 
-// Компоненты интерфейса
+// 🔥 ОБНОВЛЕНО: Поддержка эмодзи в кнопках
 class _ActionButton extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData icon;
   final Color color;
+  final String? tooltip;
+  final String? emoji; // 🔥 НОВОЕ: Поддержка эмодзи
 
   const _ActionButton({
     required this.onPressed,
     required this.icon,
     required this.color,
+    this.tooltip,
+    this.emoji,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButtonAnimation(
+    Widget button = FloatingActionButtonAnimation(
       onPressed: onPressed,
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -268,10 +288,38 @@ class _ActionButton extends StatelessWidget {
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withValues(alpha: 0.3)),
+          // 🔥 НОВОЕ: Дополнительное свечение для Top Movies
+          boxShadow: emoji != null
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
-        child: Icon(icon, color: color, size: 20),
+        child: Stack(
+          children: [
+            Icon(icon, color: color, size: 20),
+            // 🔥 НОВОЕ: Эмодзи поверх иконки
+            if (emoji != null)
+              Positioned(
+                right: -2,
+                top: -2,
+                child: Text(emoji!, style: const TextStyle(fontSize: 12)),
+              ),
+          ],
+        ),
       ),
     );
+
+    // Добавляем Tooltip если указан
+    if (tooltip != null) {
+      button = Tooltip(message: tooltip!, child: button);
+    }
+
+    return button;
   }
 }
 
@@ -291,6 +339,7 @@ class _FavoritesButton extends StatelessWidget {
             onPressed: onPressed,
             icon: Icons.favorite,
             color: AppColors.accent,
+            tooltip: 'Favorites',
           ),
           if (count > 0)
             Positioned(
