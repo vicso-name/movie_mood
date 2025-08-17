@@ -102,13 +102,14 @@ class MoodDetector {
     }
 
     final searchText = '${title ?? ''} ${plot ?? ''}'.toLowerCase();
+    final normalizedSearchText = searchText.toLowerCase();
 
     for (final entry in _moodKeywords.entries) {
       final mood = entry.key;
       final keywords = entry.value;
-
       for (final keyword in keywords) {
-        if (searchText.contains(keyword)) {
+        final regex = RegExp('\\b$keyword\\b');
+        if (regex.hasMatch(normalizedSearchText)) {
           moodScores[mood] = (moodScores[mood] ?? 0) + 1;
         }
       }
