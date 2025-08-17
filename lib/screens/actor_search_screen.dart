@@ -230,7 +230,7 @@ class _ActorSearchScreenState extends State<ActorSearchScreen> {
                     ),
                     const SizedBox(width: 8),
                     const Text(
-                      'Actor Search',
+                      AppStrings.actorSearchTitle,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 16,
@@ -241,7 +241,7 @@ class _ActorSearchScreenState extends State<ActorSearchScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Search for movies by your favorite actors. Start typing to see suggestions!', // Обновили текст
+                  AppStrings.actorSearchDescription,
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
@@ -305,7 +305,7 @@ class _ActorSearchScreenState extends State<ActorSearchScreen> {
                   context.read<SearchProvider>().clearSearch();
                   setState(() {});
                 },
-                child: const Text('Try Another Actor'),
+                child: const Text(AppStrings.tryAnotherActor),
               ),
             ],
           ),
@@ -343,7 +343,7 @@ class _ActorSearchScreenState extends State<ActorSearchScreen> {
                             ),
                           ),
                           Text(
-                            '${searchProvider.searchResults.length} movies found',
+                            '${searchProvider.searchResults.length} ${searchProvider.searchResults.length == 1 ? AppStrings.movieFoundSuffix : AppStrings.moviesFoundSuffix}',
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 14,

@@ -1,3 +1,5 @@
+import '../constants/strings.dart';
+
 enum ErrorType {
   network,
   timeout,
@@ -24,8 +26,8 @@ class AppError {
   factory AppError.network() {
     return const AppError(
       type: ErrorType.network,
-      message: 'No internet connection',
-      userMessage: 'Check your internet connection and try again',
+      message: AppStrings.noInternetConnectionTech,
+      userMessage: AppStrings.checkInternetAndRetry,
       canRetry: true,
     );
   }
@@ -33,8 +35,8 @@ class AppError {
   factory AppError.timeout() {
     return const AppError(
       type: ErrorType.timeout,
-      message: 'Request timeout',
-      userMessage: 'The request is taking too long. Please try again',
+      message: AppStrings.requestTimeoutTech,
+      userMessage: AppStrings.requestTakingTooLong,
       canRetry: true,
     );
   }
@@ -42,8 +44,8 @@ class AppError {
   factory AppError.apiLimit() {
     return const AppError(
       type: ErrorType.apiLimit,
-      message: 'API limit exceeded',
-      userMessage: 'Too many requests. Please wait a moment and try again',
+      message: AppStrings.apiLimitExceededTech,
+      userMessage: AppStrings.serviceTempUnavailable,
       canRetry: true,
     );
   }
@@ -51,8 +53,8 @@ class AppError {
   factory AppError.invalidApiKey() {
     return const AppError(
       type: ErrorType.invalidApiKey,
-      message: 'Invalid API key',
-      userMessage: 'Service temporarily unavailable. Please try again later',
+      message: AppStrings.apiLimitExceededTech,
+      userMessage: AppStrings.serviceTempUnavailable,
       canRetry: false,
     );
   }
@@ -60,8 +62,8 @@ class AppError {
   factory AppError.notFound() {
     return const AppError(
       type: ErrorType.notFound,
-      message: 'Resource not found',
-      userMessage: 'No results found for your search',
+      message: AppStrings.resourceNotFoundTech,
+      userMessage: AppStrings.noResultsForSearch,
       canRetry: false,
     );
   }
@@ -69,8 +71,8 @@ class AppError {
   factory AppError.server() {
     return const AppError(
       type: ErrorType.server,
-      message: 'Server error',
-      userMessage: 'Server is experiencing issues. Please try again later',
+      message: AppStrings.serverErrorTech,
+      userMessage: AppStrings.serverExperiencingIssues,
       canRetry: true,
     );
   }
@@ -79,7 +81,7 @@ class AppError {
     return AppError(
       type: ErrorType.unknown,
       message: message,
-      userMessage: 'Something went wrong. Please try again',
+      userMessage: AppStrings.somethingWentWrongRetry,
       canRetry: true,
     );
   }

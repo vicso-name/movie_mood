@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../constants/strings.dart';
 import '../widgets/animated_widgets.dart';
+import '../services/onboarding_service.dart';
 import '../screens/main_screen.dart';
+import '../screens/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -54,38 +56,8 @@ class _SplashScreenState extends State<SplashScreen>
     // Запускаем анимации
     _startAnimations();
 
-    // Переход к главному экрану через 3.5 секунды
-    Future.delayed(const Duration(milliseconds: 3500), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const MainScreen(),
-            transitionDuration: const Duration(milliseconds: 800),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position:
-                          Tween<Offset>(
-                            begin: const Offset(0.0, 0.1),
-                            end: Offset.zero,
-                          ).animate(
-                            CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOut,
-                            ),
-                          ),
-                      child: child,
-                    ),
-                  );
-                },
-          ),
-        );
-      }
-    });
+    // Проверяем, нужно ли показать онбординг, и переходим к соответствующему экрану
+    _checkOnboardingAndNavigate();
   }
 
   void _startAnimations() async {
@@ -94,6 +66,46 @@ class _SplashScreenState extends State<SplashScreen>
 
     await Future.delayed(const Duration(milliseconds: 300));
     _logoController.forward();
+  }
+
+  void _checkOnboardingAndNavigate() async {
+    // Ждем завершения анимации сплеш-скрина
+    await Future.delayed(const Duration(milliseconds: 3500));
+
+    if (mounted) {
+      // Проверяем, видел ли пользователь онбординг
+      final hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+
+      Widget nextScreen;
+      if (hasSeenOnboarding) {
+        nextScreen = const MainScreen();
+      } else {
+        nextScreen = const OnboardingScreen();
+      }
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+          transitionDuration: const Duration(milliseconds: 800),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position:
+                    Tween<Offset>(
+                      begin: const Offset(0.0, 0.1),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    ),
+                child: child,
+              ),
+            );
+          },
+        ),
+      );
+    }
   }
 
   @override

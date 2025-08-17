@@ -16,7 +16,6 @@ class MovieProvider extends ChangeNotifier {
   AppError? _error;
   Mood? _currentMood;
 
-  // 🔥 НОВОЕ: Прогресс валидации постеров
   String _loadingStatus = '';
   double _validationProgress = 0.0;
 
@@ -41,12 +40,6 @@ class MovieProvider extends ChangeNotifier {
 
       // 🔥 ОБНОВЛЕНИЕ: Финальная проверка на Provider уровне
       _movies = allMovies.where((movie) => movie.hasValidPoster).toList();
-
-      print('Provider final check: ${allMovies.length} → ${_movies.length}');
-
-      // Показываем статистику валидации постеров
-      final stats = _movieService.getPosterValidationStats();
-      print('Poster validation stats: $stats');
 
       if (_movies.isEmpty) {
         _error = AppError.notFound();
@@ -83,10 +76,6 @@ class MovieProvider extends ChangeNotifier {
       // 🔥 ОБНОВЛЕНИЕ: Финальная проверка на Provider уровне
       _movies = allMovies.where((movie) => movie.hasValidPoster).toList();
 
-      print(
-        'Provider final check (random): ${allMovies.length} → ${_movies.length}',
-      );
-
       if (_movies.isEmpty) {
         _error = AppError.notFound();
         _loadingStatus = 'No random movies found with valid posters';
@@ -113,9 +102,7 @@ class MovieProvider extends ChangeNotifier {
     try {
       final movie = await _movieService.getMovieDetails(imdbID);
 
-      // 🔥 ПРОВЕРКА: Возвращаем детали только для фильмов с валидными постерами
       if (movie != null && !movie.hasValidPoster) {
-        print('⚠️ Movie details loaded but no valid poster: ${movie.title}');
         return null;
       }
 
@@ -158,15 +145,8 @@ class MovieProvider extends ChangeNotifier {
 
   // 🔥 ОБНОВЛЕННЫЙ МЕТОД: Удаление проблемного фильма из списка
   void removeMovieFromList(String imdbID) {
-    final removedMovie = _movies.firstWhere(
-      (movie) => movie.imdbID == imdbID,
-      orElse: () => _movies.first,
-    );
-
     _movies.removeWhere((movie) => movie.imdbID == imdbID);
-    print('🗑️ Removed movie with failed poster: ${removedMovie.title}');
 
-    // Обновляем статус если список стал пустым
     if (_movies.isEmpty) {
       _loadingStatus = 'All movies removed due to poster issues';
       _error = AppError.notFound();
@@ -191,7 +171,6 @@ class MovieProvider extends ChangeNotifier {
   // 🔥 НОВЫЙ МЕТОД: Очистка кеша валидации постеров
   void clearPosterValidationCache() {
     _movieService.clearPosterValidationCache();
-    print('🧹 Poster validation cache cleared');
   }
 
   // 🔥 НОВЫЙ МЕТОД: Принудительная проверка постеров для текущих фильмов

@@ -47,7 +47,6 @@ class StreamingProvider extends ChangeNotifier {
             _state == StreamingLoadingState.unlocked) &&
         _availability != null &&
         !_availability!.isExpired) {
-      // Просто обновляем состояние на основе статуса разблокировки
       if (_availability!.hasAnyAvailability) {
         _setState(
           _isUnlockedForCurrentMovie
@@ -69,7 +68,6 @@ class StreamingProvider extends ChangeNotifier {
       if (_availability == null || !_availability!.hasAnyAvailability) {
         _setState(StreamingLoadingState.notFound);
       } else {
-        // Данные загружены, но заблокированы рекламой
         _setState(
           _isUnlockedForCurrentMovie
               ? StreamingLoadingState.unlocked
@@ -284,7 +282,6 @@ class StreamingProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    // Очищаем данные при dispose
     clearStreaming();
     super.dispose();
   }

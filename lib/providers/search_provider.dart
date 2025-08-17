@@ -79,8 +79,6 @@ class SearchProvider extends ChangeNotifier {
     _error = null;
 
     try {
-      print('🔍 SearchProvider: Loading top movies for ${imdbIds.length} IDs');
-
       _searchResults = await _movieService.getTopMoviesByIds(imdbIds);
 
       // Дополнительная фильтрация на уровне provider
@@ -110,8 +108,6 @@ class SearchProvider extends ChangeNotifier {
     _error = null;
 
     try {
-      print('🎲 SearchProvider: Loading random top movies');
-
       _searchResults = await _movieService.getRandomTopMovies(count: count);
 
       if (_searchResults.isEmpty) {

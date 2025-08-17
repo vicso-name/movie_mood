@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/streaming_provider.dart';
 import '../models/streaming_availability.dart';
 import '../constants/colors.dart';
+import '../constants/strings.dart';
 
 class StreamingAvailabilityWidget extends StatefulWidget {
   final String imdbId;
@@ -51,7 +52,7 @@ class _StreamingAvailabilityWidgetState
 
   Widget _buildSectionTitle() {
     return const Text(
-      'Where to watch',
+      AppStrings.whereToWatch,
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -75,16 +76,13 @@ class _StreamingAvailabilityWidgetState
         return _buildLockedState(provider);
 
       case StreamingLoadingState.showingAd:
-        print('StreamingWidget: Returning showing ad state');
         return _buildShowingAdState();
 
       case StreamingLoadingState.unlocked:
-        print('StreamingWidget: Returning unlocked state');
         return _buildAvailabilityContent(provider.availability!);
 
       case StreamingLoadingState.idle:
       default:
-        print('StreamingWidget: Returning idle/default state');
         return const SizedBox.shrink();
     }
   }
@@ -119,7 +117,7 @@ class _StreamingAvailabilityWidgetState
           if (provider.canRetry)
             TextButton(
               onPressed: () => provider.retry(),
-              child: const Text('Retry'),
+              child: const Text(AppStrings.retry),
             ),
         ],
       ),
@@ -140,7 +138,7 @@ class _StreamingAvailabilityWidgetState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'This movie is currently not available on major streaming platforms.',
+              AppStrings.movieNotAvailable,
               style: const TextStyle(color: Colors.orange, fontSize: 14),
             ),
           ),
@@ -172,7 +170,7 @@ class _StreamingAvailabilityWidgetState
           Icon(Icons.play_circle_outline, size: 48, color: AppColors.primary),
           const SizedBox(height: 12),
           Text(
-            'Found $totalSources streaming options!',
+            '${AppStrings.foundStreamingOptions} $totalSources ${AppStrings.streamingOptionsText}',
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -182,7 +180,7 @@ class _StreamingAvailabilityWidgetState
           ),
           const SizedBox(height: 8),
           Text(
-            'Watch a short ad to unlock all streaming platforms and prices',
+            AppStrings.watchAdToUnlock,
             style: TextStyle(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.8),
@@ -199,7 +197,7 @@ class _StreamingAvailabilityWidgetState
               },
               icon: const Icon(Icons.play_arrow, size: 20),
               label: const Text(
-                'Watch Ad & Unlock',
+                AppStrings.watchAdUnlock,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
@@ -215,7 +213,7 @@ class _StreamingAvailabilityWidgetState
           ),
           const SizedBox(height: 8),
           Text(
-            'Free • Takes 15-30 seconds',
+            AppStrings.freeTakesSeconds,
             style: TextStyle(
               fontSize: 12,
               color: Colors.green[300],
@@ -248,7 +246,7 @@ class _StreamingAvailabilityWidgetState
           ),
           const SizedBox(height: 16),
           const Text(
-            'Loading ad...',
+            AppStrings.loadingAd,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -257,7 +255,7 @@ class _StreamingAvailabilityWidgetState
           ),
           const SizedBox(height: 8),
           Text(
-            'Please wait while we prepare your streaming options',
+            AppStrings.pleaseWaitStreaming,
             style: TextStyle(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.8),
@@ -274,22 +272,34 @@ class _StreamingAvailabilityWidgetState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (availability.freeSources.isNotEmpty)
-          _buildSection('Free', availability.freeSources, Colors.green),
+          _buildSection(
+            AppStrings.free,
+            availability.freeSources,
+            Colors.green,
+          ),
 
         // Then subscription
         if (availability.subscriptionSources.isNotEmpty)
           _buildSection(
-            'Streaming',
+            AppStrings.streaming,
             availability.subscriptionSources,
             AppColors.primary,
           ),
 
         // Then rent/buy
         if (availability.rentSources.isNotEmpty)
-          _buildSection('Rent', availability.rentSources, Colors.orange),
+          _buildSection(
+            AppStrings.rent,
+            availability.rentSources,
+            Colors.orange,
+          ),
 
         if (availability.purchaseSources.isNotEmpty)
-          _buildSection('Buy', availability.purchaseSources, Colors.purple),
+          _buildSection(
+            AppStrings.buy,
+            availability.purchaseSources,
+            Colors.purple,
+          ),
       ],
     );
   }
@@ -361,20 +371,20 @@ class _StreamingAvailabilityWidgetState
     int platformCount,
     String? cheapestPrice,
   ) {
-    if (title == 'Free') {
-      return '$platformCount platform${platformCount == 1 ? '' : 's'}';
+    if (title == AppStrings.free) {
+      return '$platformCount ${platformCount == 1 ? AppStrings.platform : AppStrings.platforms}';
     }
 
-    if (title == 'Streaming') {
-      return '$platformCount service${platformCount == 1 ? '' : 's'}';
+    if (title == AppStrings.streaming) {
+      return '$platformCount ${platformCount == 1 ? AppStrings.service : AppStrings.services}';
     }
 
     // Для Rent и Buy показываем количество платформ + самую низкую цену
     if (cheapestPrice != null && cheapestPrice.isNotEmpty) {
-      return 'from $cheapestPrice • $platformCount option${platformCount == 1 ? '' : 's'}';
+      return '${AppStrings.from} $cheapestPrice • $platformCount ${platformCount == 1 ? AppStrings.option : AppStrings.options}';
     }
 
-    return '$platformCount option${platformCount == 1 ? '' : 's'}';
+    return '$platformCount ${platformCount == 1 ? AppStrings.option : AppStrings.options}';
   }
 
   /// Находит самую низкую цену в списке источников
@@ -546,9 +556,9 @@ class _StreamingSourceButton extends StatelessWidget {
   IconData _getPlatformIcon() {
     final type = source.type.toLowerCase();
 
-    if (type.contains('free')) return Icons.play_circle_outline;
-    if (type.contains('rent')) return Icons.video_library;
-    if (type.contains('buy') || type.contains('purchase')) {
+    if (type.contains(AppStrings.free)) return Icons.play_circle_outline;
+    if (type.contains(AppStrings.rent)) return Icons.video_library;
+    if (type.contains(AppStrings.buy) || type.contains('purchase')) {
       return Icons.shopping_cart;
     }
 
@@ -587,7 +597,7 @@ class _StreamingSourceButton extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not open streaming service'),
+            content: Text(AppStrings.couldNotOpenStreaming),
             duration: Duration(seconds: 2),
           ),
         );

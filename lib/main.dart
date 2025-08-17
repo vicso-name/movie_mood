@@ -6,7 +6,6 @@ import 'providers/favorites_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/streaming_provider.dart';
 import 'services/rewarded_ad_service.dart';
-import 'services/movie_service.dart'; // 🆕 Добавьте этот импорт
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'constants/colors.dart';
 import 'constants/strings.dart';
@@ -37,15 +36,6 @@ Future<void> main() async {
   // Загружаем .env файл
   await dotenv.load(fileName: ".env");
 
-  // 🆕 ВРЕМЕННО: Очищаем кеш при запуске для тестирования фильтрации
-  try {
-    final movieService = MovieService();
-    await movieService.clearCache();
-    print('🗑️ Cache cleared for testing poster filtering');
-  } catch (e) {
-    print('⚠️ Failed to clear cache: $e');
-  }
-
   // Предзагружаем первую рекламу
   RewardedAdService.instance.loadRewardedAd();
 
@@ -75,7 +65,6 @@ class MyApp extends StatelessWidget {
             primary: AppColors.primary,
             secondary: AppColors.accent,
             surface: AppColors.surface,
-            background: AppColors.background,
           ),
           appBarTheme: const AppBarTheme(
             backgroundColor: AppColors.background,

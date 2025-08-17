@@ -1,8 +1,8 @@
 import '../models/mood.dart';
 import '../constants/moods.dart';
+import '../constants/strings.dart';
 
 class MoodDetector {
-  // Точное соответствие жанров OMDB API к настроениям
   static const Map<String, String> _genreToMoodMap = {
     // Happy/Comedy
     'comedy': 'happy',
@@ -86,25 +86,21 @@ class MoodDetector {
     ],
   };
 
-  /// Определяет настроение фильма по жанрам, названию и описанию
   static Mood detectMoodFromMovie({
     required List<String> genres,
     String? title,
     String? plot,
   }) {
-    // 1. Анализируем жанры (основной способ)
     final Map<String, int> moodScores = {};
 
     for (final genre in genres) {
       final normalizedGenre = genre.toLowerCase().trim();
       final mood = _genreToMoodMap[normalizedGenre];
       if (mood != null) {
-        moodScores[mood] =
-            (moodScores[mood] ?? 0) + 3; // Жанры имеют высокий вес
+        moodScores[mood] = (moodScores[mood] ?? 0) + 3;
       }
     }
 
-    // 2. Дополнительный анализ по ключевым словам
     final searchText = '${title ?? ''} ${plot ?? ''}'.toLowerCase();
 
     for (final entry in _moodKeywords.entries) {
@@ -113,18 +109,15 @@ class MoodDetector {
 
       for (final keyword in keywords) {
         if (searchText.contains(keyword)) {
-          moodScores[mood] =
-              (moodScores[mood] ?? 0) + 1; // Ключевые слова имеют меньший вес
+          moodScores[mood] = (moodScores[mood] ?? 0) + 1;
         }
       }
     }
 
-    // 3. Определяем лучшее настроение
     if (moodScores.isEmpty) {
       return _getDefaultMood();
     }
 
-    // Находим настроение с максимальным счетом
     final bestMoodEntry = moodScores.entries.reduce(
       (a, b) => a.value > b.value ? a : b,
     );
@@ -132,12 +125,10 @@ class MoodDetector {
     return _getMoodByType(bestMoodEntry.key);
   }
 
-  /// Упрощенная версия только по жанрам
   static Mood detectMoodFromGenres(List<String> genres) {
     return detectMoodFromMovie(genres: genres);
   }
 
-  /// Получает объект Mood по строковому типу
   static Mood _getMoodByType(String searchKey) {
     final moodData = Moods.all.firstWhere(
       (mood) => mood.searchKey == searchKey,
@@ -147,23 +138,21 @@ class MoodDetector {
     return Mood.fromMoodData(moodData);
   }
 
-  /// Возвращает дефолтное настроение
   static Mood _getDefaultMood() {
     return _getMoodByType('thrilling');
   }
 
-  /// Получает объяснение выбора категории
   static String getDetectionExplanation({
     required List<String> genres,
     String? title,
-    required String detectedMood, // Принимаем String вместо MoodType
+    required String detectedMood,
   }) {
     final genreMatches = genres
         .where((g) => _genreToMoodMap[g.toLowerCase()] == detectedMood)
         .toList();
 
     if (genreMatches.isNotEmpty) {
-      return 'Based on genres: ${genreMatches.join(', ')}';
+      return '${AppStrings.basedOnGenres} ${genreMatches.join(', ')}';
     }
 
     if (title != null && title.isNotEmpty) {
@@ -173,10 +162,9 @@ class MoodDetector {
           .toList();
 
       if (foundKeywords.isNotEmpty) {
-        return 'Based on title keywords: ${foundKeywords.join(', ')}';
+        return '${AppStrings.basedOnTitleKeywords} ${foundKeywords.join(', ')}';
       }
     }
-
-    return 'Auto-detected category';
+    return AppStrings.autoDetectedCategory;
   }
 }

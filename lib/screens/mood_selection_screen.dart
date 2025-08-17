@@ -170,7 +170,7 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
           onPressed: _navigateToActorSearch,
           icon: Icons.person_search,
           color: AppColors.primary,
-          tooltip: 'Search by Actor',
+          tooltip: AppStrings.searchByActorTooltip,
         ),
         const SizedBox(width: 8),
 
@@ -178,7 +178,7 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
           onPressed: _navigateToTopMovies,
           icon: Icons.emoji_events,
           color: const Color(0xFFFFD700),
-          tooltip: 'Top Movies',
+          tooltip: AppStrings.topMoviesTooltip,
         ),
         const SizedBox(width: 8),
 
@@ -339,7 +339,7 @@ class _FavoritesButton extends StatelessWidget {
             onPressed: onPressed,
             icon: Icons.favorite,
             color: AppColors.accent,
-            tooltip: 'Favorites',
+            tooltip: AppStrings.favoritesTooltip,
           ),
           if (count > 0)
             Positioned(

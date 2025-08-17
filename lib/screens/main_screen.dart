@@ -7,6 +7,7 @@ import '../widgets/custom_page_route.dart';
 import 'mood_selection_screen.dart';
 import 'favorites_screen.dart';
 import 'movie_list_screen.dart';
+import '../constants/strings.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -73,7 +74,11 @@ class _MainScreenState extends State<MainScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(icon: Icons.mood, label: 'Mood', index: 0),
+            _buildNavItem(
+              icon: Icons.mood,
+              label: AppStrings.navMood,
+              index: 0,
+            ),
             // Центральная кнопка
             GestureDetector(
               onTap: _onSurpriseMePressed,
@@ -92,13 +97,16 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                 ),
                 child: const Center(
-                  child: Text('🎲', style: TextStyle(fontSize: 24)),
+                  child: Text(
+                    AppStrings.surpriseMeEmoji,
+                    style: TextStyle(fontSize: 24),
+                  ),
                 ),
               ),
             ),
             _buildNavItem(
               icon: Icons.favorite,
-              label: 'Favorite',
+              label: AppStrings.navFavorite,
               index: 1,
               showBadge: true,
             ),

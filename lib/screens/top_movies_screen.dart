@@ -60,8 +60,8 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                   ? TopMoviesDatabase.getCategoryInfo(
                           _selectedCategory!,
                         )?.name ??
-                        'Top Movies'
-                  : 'Top Movies',
+                        AppStrings.topMovies
+                  : AppStrings.topMovies,
             ),
           ],
         ),
@@ -92,14 +92,16 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.1),
-                  AppColors.accent.withOpacity(0.1),
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.accent.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.3),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +113,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Curated Movie Collections',
+                            AppStrings.curatedMovieCollections,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -120,7 +122,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Discover the best films across different categories',
+                            AppStrings.discoverBestFilms,
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
@@ -141,7 +143,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
 
           // Popular categories
           const Text(
-            'Popular Collections',
+            AppStrings.popularCollections,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -157,7 +159,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
 
           // All categories
           const Text(
-            'All Collections',
+            AppStrings.allCollections,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -183,19 +185,19 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
       children: [
         _buildStatItem(
           icon: Icons.category,
-          label: 'Collections',
+          label: AppStrings.collections,
           value: '${stats['total_categories']}',
         ),
         const SizedBox(width: 24),
         _buildStatItem(
           icon: Icons.movie,
-          label: 'Movies',
+          label: AppStrings.movies,
           value: '${stats['unique_movies']}',
         ),
         const SizedBox(width: 24),
         _buildStatItem(
           icon: Icons.star,
-          label: 'Avg/Collection',
+          label: AppStrings.avgCollection,
           value: '${stats['average_per_category']}',
         ),
       ],
@@ -247,14 +249,14 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
               borderRadius: BorderRadius.circular(16),
               border: isPopular
                   ? Border.all(
-                      color: Color(info.color).withOpacity(0.5),
+                      color: Color(info.color).withValues(alpha: 0.5),
                       width: 1.5,
                     )
                   : null,
               boxShadow: isPopular
                   ? [
                       BoxShadow(
-                        color: Color(info.color).withOpacity(0.2),
+                        color: Color(info.color).withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -267,7 +269,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Color(info.color).withOpacity(0.2),
+                    color: Color(info.color).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(info.emoji, style: const TextStyle(fontSize: 24)),
@@ -299,14 +301,16 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.accent.withOpacity(0.2),
+                                color: AppColors.accent.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: AppColors.accent.withOpacity(0.5),
+                                  color: AppColors.accent.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                               child: const Text(
-                                'POPULAR',
+                                AppStrings.popular,
                                 style: TextStyle(
                                   color: AppColors.accent,
                                   fontSize: 10,
@@ -330,7 +334,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                           Icon(Icons.movie, color: Color(info.color), size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            '$movieCount movies',
+                            '$movieCount ${AppStrings.movies.toLowerCase()}',
                             style: TextStyle(
                               color: Color(info.color),
                               fontSize: 12,
@@ -390,7 +394,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
             const Icon(Icons.movie_outlined, size: 64, color: Colors.white54),
             const SizedBox(height: 16),
             const Text(
-              'No movies found in this collection',
+              AppStrings.noMoviesInCollection,
               style: TextStyle(color: Colors.white70, fontSize: 18),
             ),
             const SizedBox(height: 16),
@@ -401,7 +405,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                 });
                 context.read<SearchProvider>().clearSearch();
               },
-              child: const Text('Back to Collections'),
+              child: const Text(AppStrings.backToCollections),
             ),
           ],
         ),
@@ -430,9 +434,9 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                     context.read<SearchProvider>().clearSearch();
                   },
                   icon: const Icon(Icons.arrow_back, size: 18),
-                  label: const Text('Back'),
+                  label: Text(AppStrings.back),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary.withOpacity(0.2),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                     foregroundColor: AppColors.primary,
                     elevation: 0,
                   ),
@@ -454,7 +458,7 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
                         ),
                       ),
                       Text(
-                        '${movies.length} movies found',
+                        '${movies.length} ${AppStrings.moviesFoundSuffix}',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -537,7 +541,10 @@ class _TopMoviesScreenState extends State<TopMoviesScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close', style: TextStyle(color: AppColors.primary)),
+            child: Text(
+              AppStrings.close,
+              style: TextStyle(color: AppColors.primary),
+            ),
           ),
         ],
       ),

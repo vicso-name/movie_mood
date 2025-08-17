@@ -16,7 +16,7 @@ enum LoadingType {
 class LoadingWidget extends StatefulWidget {
   final String? message;
   final LoadingType type;
-  final String? mood; // Для персонализации сообщений
+  final String? mood;
 
   const LoadingWidget({
     super.key,
@@ -73,15 +73,19 @@ class _LoadingWidgetState extends State<LoadingWidget>
 
     switch (widget.type) {
       case LoadingType.general:
-        _messages = ['⏳ Loading...', '🔄 Processing...', '⚡ Almost there...'];
+        _messages = [
+          AppStrings.loadingGeneral,
+          AppStrings.processing,
+          AppStrings.almostThere,
+        ];
         break;
 
       case LoadingType.searchingMovies:
         _messages = [
-          '🎬 Searching for movies...',
-          '🎭 Analyzing genres...',
-          '⭐ Checking ratings...',
-          '🍿 Finding the best matches...',
+          AppStrings.searchingMovies,
+          AppStrings.analyzingGenres,
+          AppStrings.checkingRatings,
+          AppStrings.findingBestMatches,
         ];
         break;
 
@@ -91,18 +95,18 @@ class _LoadingWidgetState extends State<LoadingWidget>
 
       case LoadingType.actorSearch:
         _messages = [
-          '🎭 Searching filmography...',
-          '🎬 Finding best performances...',
-          '⭐ Sorting by ratings...',
-          '🍿 Almost ready...',
+          AppStrings.searchingFilmography,
+          AppStrings.findingBestPerformances,
+          AppStrings.sortingByRatings,
+          AppStrings.almostReady,
         ];
         break;
 
       case LoadingType.gettingDetails:
         _messages = [
-          '📋 Getting movie details...',
-          '🎬 Loading information...',
-          '⭐ Fetching ratings...',
+          AppStrings.gettingMovieDetails,
+          AppStrings.loadingInformation,
+          AppStrings.fetchingRatings,
         ];
         break;
     }
@@ -114,58 +118,58 @@ class _LoadingWidgetState extends State<LoadingWidget>
     switch (mood) {
       case 'happy':
         return [
-          '😊 Looking for happy films...',
-          '🎭 Finding comedies...',
-          '🌟 Searching feel-good movies...',
-          '🍿 Almost got the perfect picks!',
+          AppStrings.lookingForHappyFilms,
+          AppStrings.findingComedies,
+          AppStrings.searchingFeelGoodMovies,
+          AppStrings.almostGotPerfectPicks,
         ];
 
       case 'romantic':
         return [
-          '💕 Finding romantic stories...',
-          '❤️ Searching love tales...',
-          '🌹 Looking for perfect date movies...',
-          '✨ Almost ready for romance!',
+          AppStrings.findingRomanticStories,
+          AppStrings.searchingLoveTales,
+          AppStrings.lookingForDateMovies,
+          AppStrings.almostReadyForRomance,
         ];
 
       case 'sad':
         return [
-          '🎭 Finding emotional dramas...',
-          '💧 Searching touching stories...',
-          '🖤 Looking for deep films...',
-          '🎬 Preparing heartfelt cinema...',
+          AppStrings.findingEmotionalDramas,
+          AppStrings.searchingTouchingStories,
+          AppStrings.lookingForDeepFilms,
+          AppStrings.preparingHeartfeltCinema,
         ];
 
       case 'cozy':
         return [
-          '🏠 Finding cozy films...',
-          '☕ Searching comfort movies...',
-          '🔥 Looking for warm stories...',
-          '🧸 Almost ready for coziness!',
+          AppStrings.findingCozyFilms,
+          AppStrings.searchingComfortMovies,
+          AppStrings.lookingForWarmStories,
+          AppStrings.almostReadyForCoziness,
         ];
 
       case 'inspiring':
         return [
-          '⭐ Finding inspiring stories...',
-          '🚀 Searching motivational films...',
-          '💪 Looking for success tales...',
-          '🏆 Almost got your inspiration!',
+          AppStrings.findingInspiringStories,
+          AppStrings.searchingMotivationalFilms,
+          AppStrings.lookingForSuccessTales,
+          AppStrings.almostGotInspiration,
         ];
 
       case 'thrilling':
         return [
-          '⚡ Finding thrilling adventures...',
-          '🎯 Searching action-packed films...',
-          '💥 Looking for adrenaline rush...',
-          '🔥 Almost ready for excitement!',
+          AppStrings.findingThrillingAdventures,
+          AppStrings.searchingActionPackedFilms,
+          AppStrings.lookingForAdrenalineRush,
+          AppStrings.almostReadyForExcitement,
         ];
 
       default:
         return [
-          '🎬 Analyzing your mood...',
-          '🎭 Finding perfect matches...',
-          '⭐ Selecting best options...',
-          '🍿 Almost ready!',
+          AppStrings.analyzingYourMood,
+          AppStrings.findingPerfectMatches,
+          AppStrings.selectingBestOptions,
+          AppStrings.almostReadyDefault,
         ];
     }
   }
@@ -233,9 +237,9 @@ class _LoadingWidgetState extends State<LoadingWidget>
               widget.type == LoadingType.actorSearch) ...[
             const SizedBox(height: 12),
             Text(
-              'This might take a few seconds...',
+              AppStrings.thisMightTakeFewSeconds,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
             ),
@@ -289,8 +293,8 @@ class _LoadingWidgetState extends State<LoadingWidget>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: color.withOpacity(0.1),
-              border: Border.all(color: color.withOpacity(0.3), width: 2),
+              color: color.withValues(alpha: 0.1),
+              border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
             ),
             child: Icon(icon, size: 32, color: color),
           ),
@@ -333,7 +337,7 @@ class _LoadingWidgetState extends State<LoadingWidget>
                     height: 4,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primary.withOpacity(0.6),
+                      color: AppColors.primary.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
@@ -440,7 +444,7 @@ class AppErrorWidget extends StatelessWidget {
                       ),
                     ),
                     icon: const Icon(Icons.help_outline, size: 18),
-                    label: const Text('Help'),
+                    label: const Text(AppStrings.help),
                   ),
                 ],
               ],
@@ -492,19 +496,19 @@ class AppErrorWidget extends StatelessWidget {
   String _getErrorTitle() {
     switch (error.type) {
       case ErrorType.network:
-        return 'No Internet Connection';
+        return AppStrings.noInternetConnection;
       case ErrorType.timeout:
-        return 'Request Timeout';
+        return AppStrings.requestTimeout;
       case ErrorType.apiLimit:
-        return 'Too Many Requests';
+        return AppStrings.tooManyRequests;
       case ErrorType.invalidApiKey:
-        return 'Service Unavailable';
+        return AppStrings.serviceUnavailable;
       case ErrorType.notFound:
-        return 'Not Found';
+        return AppStrings.notFound;
       case ErrorType.server:
-        return 'Server Error';
+        return AppStrings.serverError;
       case ErrorType.unknown:
-        return 'Something Went Wrong';
+        return AppStrings.somethingWentWrong;
     }
   }
 
@@ -514,21 +518,18 @@ class AppErrorWidget extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const Text(
-          'Connection Tips',
+          AppStrings.connectionTips,
           style: TextStyle(color: Colors.white),
         ),
         content: const Text(
-          '• Check your Wi-Fi or mobile data\n'
-          '• Make sure you have internet access\n'
-          '• Try switching between Wi-Fi and mobile data\n'
-          '• Restart your internet connection',
+          AppStrings.connectionTipsText,
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
-              'Got it',
+              AppStrings.gotIt,
               style: TextStyle(color: AppColors.primary),
             ),
           ),

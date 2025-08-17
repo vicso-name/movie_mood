@@ -206,22 +206,13 @@ class _AdaptiveMovieCardState extends State<AdaptiveMovieCard>
         ),
       ),
       errorWidget: (context, url, error) {
-        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: При ошибке загрузки скрываем карточку
-        print('❌ Image load error for "${widget.movie.title}":');
-        print('   URL: $url');
-        print('   Error: $error');
-
         // Обновляем валидацию постера в модели
         widget.movie.setPosterValidation(false);
-
-        // Запускаем анимацию скрытия карточки
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && !_isHiding) {
             _hideCardWithAnimation();
           }
         });
-
-        // Временно показываем placeholder пока идет анимация скрытия
         return _buildPlaceholder();
       },
       httpHeaders: const {

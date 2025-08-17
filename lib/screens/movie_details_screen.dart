@@ -164,7 +164,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Added to "${detectedMood.name}" category',
+                    '${AppStrings.addedToCategory} "${detectedMood.name}" ${AppStrings.categoryText}',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
@@ -194,7 +194,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   void _showFavoriteSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Removed from favorites'),
+        content: Text(AppStrings.removedFromFavorites),
         duration: Duration(seconds: 2),
       ),
     );
@@ -529,11 +529,11 @@ class _CrewInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (movie.director != null) ...[
-          _InfoRow(label: 'Director', value: movie.director!),
+          _InfoRow(label: AppStrings.director, value: movie.director!),
           const SizedBox(height: 12),
         ],
         if (movie.actors != null) ...[
-          _InfoRow(label: 'Cast', value: movie.actors!),
+          _InfoRow(label: AppStrings.cast, value: movie.actors!),
         ],
       ],
     );

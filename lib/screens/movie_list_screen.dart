@@ -31,7 +31,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
             return Text(
               mood != null
                   ? '${AppStrings.moviesFor} ${mood.name}'
-                  : 'Random Movies',
+                  : AppStrings.randomMovies,
             );
           },
         ),
@@ -209,22 +209,22 @@ class _MovieListScreenState extends State<MovieListScreen> {
 
   String _getSuggestButtonText() {
     if (_suggestionCount == 0) {
-      return 'Suggest Others';
+      return AppStrings.suggestOthers;
     } else if (_suggestionCount == 1) {
-      return 'Show More Options';
+      return AppStrings.showMoreOptions;
     } else {
-      return 'Find Different Movies';
+      return AppStrings.findDifferentMovies;
     }
   }
 
   String _getSuggestSubtitle(MovieProvider movieProvider) {
     final mood = movieProvider.currentMood;
     if (_suggestionCount == 0) {
-      return 'Get fresh ${mood?.name.toLowerCase() ?? 'movie'} suggestions';
+      return '${AppStrings.getFreshSuggestions} ${mood?.name.toLowerCase() ?? AppStrings.movieLowercase} ${AppStrings.suggestions}';
     } else if (_suggestionCount == 1) {
-      return 'Discover more ${mood?.name.toLowerCase() ?? ''} movies';
+      return '${AppStrings.discoverMore} ${mood?.name.toLowerCase() ?? ''} ${AppStrings.moviesLowercase}';
     } else {
-      return 'Keep exploring new options';
+      return AppStrings.keepExploring;
     }
   }
 

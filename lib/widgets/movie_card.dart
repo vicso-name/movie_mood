@@ -28,9 +28,8 @@ class MovieCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Poster image - растягиваем больше для постера
             Expanded(
-              flex: 4, // Увеличиваем долю постера
+              flex: 4,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
