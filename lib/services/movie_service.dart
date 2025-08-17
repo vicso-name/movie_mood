@@ -419,51 +419,27 @@ class MovieService {
     }
 
     try {
-      final List<Movie> movies = [];
-      final Set<String> processedIds = {};
+      // 1. Создаем список Future для каждого запроса деталей фильма.
+      final List<Future<Movie?>> movieFutures = imdbIds
+          .map((imdbId) => getMovieDetails(imdbId.trim()))
+          .toList();
 
-      for (int i = 0; i < imdbIds.length; i++) {
-        final imdbId = imdbIds[i].trim();
+      // 2. Параллельно выполняем все запросы с помощью Future.wait.
+      // Это значительно ускоряет загрузку.
+      final List<Movie?> results = await Future.wait(movieFutures);
 
-        if (processedIds.contains(imdbId)) {
-          continue;
-        }
-        processedIds.add(imdbId);
+      // 3. Фильтруем результаты, оставляя только фильмы с валидными постерами.
+      final List<Movie> movies = results
+          .where((movie) => movie != null && movie.hasValidPoster)
+          .cast<Movie>()
+          .toList();
 
-        try {
-          Movie? movie = await _cacheService.getCachedMovie(imdbId);
-
-          movie ??= await getMovieDetails(imdbId);
-
-          if (movie != null && movie.hasValidPoster) {
-            movies.add(movie);
-            print('✅ Loaded: ${movie.title}');
-          } else {
-            print('❌ Skipped: $imdbId (no valid poster)');
-          }
-
-          // Небольшая задержка чтобы не перегружать API
-          if (i < imdbIds.length - 1) {
-            await Future.delayed(const Duration(milliseconds: 200));
-          }
-
-          // Прогресс каждые 5 фильмов
-          if ((i + 1) % 5 == 0) {
-            print(
-              'Progress: ${i + 1}/${imdbIds.length} processed, ${movies.length} valid movies',
-            );
-          }
-        } catch (e) {
-          continue; // Продолжаем со следующим фильмом
-        }
-      }
-
+      // 4. Валидируем постеры
       final validatedMovies = await _posterValidator.validateMoviePosters(
         movies,
-        onProgress: (current, total) {
-          print('Poster validation: $current/$total');
-        },
       );
+
+      // 5. Сортируем фильмы по рейтингу и возвращаем результат.
       validatedMovies.sort((a, b) => b.rating.compareTo(a.rating));
       return validatedMovies;
     } catch (e) {
@@ -512,69 +488,62 @@ class MovieService {
   }
 
   Future<List<Movie>> searchMoviesByActor(String actorName) async {
-    if (!ActorsDatabase.isKnownActor(actorName)) {
+    final movieTitles = ActorsDatabase.getActorMovies(actorName);
+
+    // 1. Сразу проверяем, есть ли фильмы в базе. Если нет, выбрасываем ошибку.
+    if (movieTitles.isEmpty) {
       throw AppError.notFound();
     }
 
     try {
-      // Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ ÐºÐµÑˆ
+      // 2. Сначала проверяем кэш для этого актера.
       final cachedMovies = await _cacheService.getCachedActorMovies(actorName);
       if (cachedMovies != null && cachedMovies.isNotEmpty) {
         return cachedMovies;
       }
 
-      // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð¸Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚ ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð¸Ðµ
+      // 3. Проверяем интернет-соединение перед началом запросов.
       if (!await ConnectivityService.hasInternetConnection()) {
         throw AppError.network();
       }
 
-      // Ð•ÑÐ»Ð¸ Ð² ÐºÐµÑˆÐµ Ð½ÐµÑ‚, Ð·Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ Ð¸Ð· API
-      final movieTitles = ActorsDatabase.getActorMovies(actorName);
-      final List<Movie> foundMovies = [];
+      // 4. Создаем список Future для параллельных запросов.
+      // Используем take(15) чтобы не перегружать API
+      final List<Future<Movie?>> futures = movieTitles
+          .take(15)
+          .map((title) => _getMovieWithCache(title))
+          .toList();
 
-      for (final title in movieTitles.take(15)) {
-        try {
-          final movie = await _getMovieWithCache(title);
-          if (movie != null) {
-            // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, Ñ‡Ñ‚Ð¾ Ð°ÐºÑ‚ÐµÑ€ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ ÑƒÐºÐ°Ð·Ð°Ð½ Ð² ÑÐ¾ÑÑ‚Ð°Ð²Ðµ
-            if (movie.actors != null &&
-                movie.actors!.toLowerCase().contains(actorName.toLowerCase())) {
-              foundMovies.add(movie);
-            }
-          }
+      // 5. Запускаем все запросы параллельно.
+      final List<Movie?> results = await Future.wait(futures);
 
-          // ÐÐµÐ±Ð¾Ð»ÑŒÑˆÐ°Ñ Ð·Ð°Ð´ÐµÑ€Ð¶ÐºÐ° Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð¿ÐµÑ€ÐµÐ³Ñ€ÑƒÐ¶Ð°Ñ‚ÑŒ API
-          await Future.delayed(const Duration(milliseconds: 200));
-        } catch (e) {
-          // ÐŸÑ€Ð¾Ð´Ð¾Ð»Ð¶Ð°ÐµÐ¼ Ð¿Ð¾Ð¸ÑÐº Ð´Ñ€ÑƒÐ³Ð¸Ñ… Ñ„Ð¸Ð»ÑŒÐ¼Ð¾Ð² Ð¿Ñ€Ð¸ Ð¾ÑˆÐ¸Ð±ÐºÐµ Ð¾Ð´Ð½Ð¾Ð³Ð¾
-          continue;
-        }
+      // 6. Фильтруем результаты: удаляем null и проверяем наличие актера.
+      final List<Movie> foundMovies = results
+          .where((movie) => movie != null)
+          .cast<Movie>()
+          .where(
+            (movie) =>
+                movie.actors != null &&
+                movie.actors!.toLowerCase().contains(actorName.toLowerCase()),
+          )
+          .toList();
+
+      // 7. Удаляем дубликаты и сортируем.
+      final uniqueMovies = foundMovies.toSet().toList();
+      uniqueMovies.sort((a, b) => b.rating.compareTo(a.rating));
+
+      // 8. Кэшируем результат.
+      if (uniqueMovies.isNotEmpty) {
+        await _cacheService.cacheActorMovies(actorName, uniqueMovies);
       }
 
-      // Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚Ñ‹
-      final uniqueMovies = <String, Movie>{};
-      for (final movie in foundMovies) {
-        uniqueMovies[movie.imdbID] = movie;
-      }
-
-      final result = uniqueMovies.values.toList();
-      result.sort((a, b) => b.rating.compareTo(a.rating));
-
-      // ÐšÐµÑˆÐ¸Ñ€ÑƒÐµÐ¼ Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚
-      if (result.isNotEmpty) {
-        await _cacheService.cacheActorMovies(actorName, result);
-      }
-
-      return result;
+      return uniqueMovies;
     } catch (e) {
-      if (e is AppError) {
-        rethrow;
-      }
+      // 9. Используем общий обработчик ошибок
       throw _handleError(e);
     }
   }
 
-  // ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ Ñ„Ð¸Ð»ÑŒÐ¼Ð° Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¾Ð¹ ÐºÐµÑˆÐ° Ð¸ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ¾Ð¹ Ð¾ÑˆÐ¸Ð±Ð¾Ðº
   Future<Movie?> _getMovieWithCache(String title) async {
     try {
       final movie = await _searchExactTitle(title);
@@ -1026,16 +995,20 @@ class MovieService {
   Future<List<Movie>> _getMovieDetailsForResults(
     List<dynamic> searchResults,
   ) async {
-    final List<Movie> movies = [];
+    final List<Future<Movie?>> futures = [];
 
     for (int i = 0; i < min(15, searchResults.length); i++) {
-      try {
-        final movieDetails = await getMovieDetails(searchResults[i]['imdbID']);
-        if (movieDetails != null && movieDetails.hasBasicPosterUrl) {
-          movies.add(movieDetails);
-        }
-      } catch (e) {
-        continue;
+      final imdbId = searchResults[i]['imdbID'];
+      futures.add(getMovieDetails(imdbId)); // Добавляем Future в список
+    }
+
+    // Запускаем все запросы одновременно
+    final List<Movie?> results = await Future.wait(futures);
+
+    final List<Movie> movies = [];
+    for (final movie in results) {
+      if (movie != null && movie.hasBasicPosterUrl) {
+        movies.add(movie);
       }
     }
 
