@@ -1,16 +1,17 @@
+import 'package:flutter/material.dart';
 import '../constants/moods.dart';
 
 class Mood {
   final MoodType type;
   final String name;
-  final String emoji;
+  final IconData icon; // Заменено emoji на icon
   final int color;
   final String searchKey;
 
   Mood({
     required this.type,
     required this.name,
-    required this.emoji,
+    required this.icon, // Заменено emoji на icon
     required this.color,
     required this.searchKey,
   });
@@ -19,8 +20,8 @@ class Mood {
     return Mood(
       type: moodData.type,
       name: moodData.name,
-      emoji: moodData.emoji,
-      color: moodData.color.value,
+      icon: moodData.icon,
+      color: moodData.color.toARGB32(),
       searchKey: moodData.searchKey,
     );
   }
@@ -29,7 +30,7 @@ class Mood {
     return {
       'type': type.name,
       'name': name,
-      'emoji': emoji,
+      'icon_code_point': icon.codePoint, // Сохраняем codePoint иконки
       'color': color,
       'search_key': searchKey,
     };
@@ -42,7 +43,10 @@ class Mood {
         orElse: () => MoodType.happy,
       ),
       name: json['name'] ?? '',
-      emoji: json['emoji'] ?? '',
+      icon: IconData(
+        json['icon_code_point'] ?? 0, // Создаём IconData из codePoint
+        fontFamily: 'MaterialIcons',
+      ),
       color: json['color'] ?? 0,
       searchKey: json['search_key'] ?? 'happy',
     );

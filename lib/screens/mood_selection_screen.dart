@@ -9,7 +9,7 @@ import '../providers/favorites_provider.dart';
 import 'movie_list_screen.dart';
 import 'favorites_screen.dart';
 import 'actor_search_screen.dart';
-import 'top_movies_screen.dart'; // 🔥 НОВЫЙ ИМПОРТ
+import 'top_movies_screen.dart';
 import '../widgets/custom_page_route.dart';
 import '../widgets/animated_widgets.dart';
 
@@ -71,7 +71,6 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
-      // 🔥 ОБНОВЛЕНО: Добавлены кнопки в верхнюю панель
       actions: [_buildActionButtons(), const SizedBox(width: 8)],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16, right: 16),
@@ -160,7 +159,6 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
     );
   }
 
-  // 🔥 ОБНОВЛЕНО: Добавлена кнопка Top Movies
   Widget _buildActionButtons() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -246,13 +244,12 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
     );
   }
 
-  // 🔥 НОВЫЙ МЕТОД: Переход к топ фильмам
   void _navigateToTopMovies() {
     Navigator.push(
       context,
       SlidePageRoute(
         child: const TopMoviesScreen(),
-        direction: AxisDirection.down, // Слайд сверху вниз для премиум-ощущения
+        direction: AxisDirection.down,
       ),
     );
   }
@@ -262,20 +259,19 @@ class _MoodSelectionScreenState extends State<MoodSelectionScreen> {
   }
 }
 
-// 🔥 ОБНОВЛЕНО: Поддержка эмодзи в кнопках
+// 🔥 ОБНОВЛЕНО: Класс `_ActionButton` больше не использует эмодзи,
+// так как все иконки теперь передаются через `IconData`.
 class _ActionButton extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData icon;
   final Color color;
   final String? tooltip;
-  final String? emoji; // 🔥 НОВОЕ: Поддержка эмодзи
 
   const _ActionButton({
     required this.onPressed,
     required this.icon,
     required this.color,
     this.tooltip,
-    this.emoji,
   });
 
   @override
@@ -288,29 +284,8 @@ class _ActionButton extends StatelessWidget {
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withValues(alpha: 0.3)),
-          // 🔥 НОВОЕ: Дополнительное свечение для Top Movies
-          boxShadow: emoji != null
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
-        child: Stack(
-          children: [
-            Icon(icon, color: color, size: 20),
-            // 🔥 НОВОЕ: Эмодзи поверх иконки
-            if (emoji != null)
-              Positioned(
-                right: -2,
-                top: -2,
-                child: Text(emoji!, style: const TextStyle(fontSize: 12)),
-              ),
-          ],
-        ),
+        child: Icon(icon, color: color, size: 20),
       ),
     );
 
@@ -439,7 +414,8 @@ class _MoodCardState extends State<_MoodCard>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(widget.mood.emoji, style: const TextStyle(fontSize: 48)),
+                  // 🔥 ИЗМЕНЕНИЕ: Замена Text на Icon
+                  Icon(widget.mood.icon, size: 48, color: widget.mood.color),
                   const SizedBox(height: 12),
                   Text(
                     widget.mood.name,

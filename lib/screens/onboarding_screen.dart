@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../constants/strings.dart';
-import '../constants/moods.dart';
-import '../widgets/custom_page_route.dart';
 import '../models/onboarding_page.dart';
 import '../services/onboarding_service.dart';
 import '../widgets/animated_widgets.dart';

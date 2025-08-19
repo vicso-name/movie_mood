@@ -160,7 +160,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           children: [
             Row(
               children: [
-                Text(detectedMood.emoji),
+                Icon(
+                  detectedMood.icon,
+                  color: Color(detectedMood.color),
+                  size: 24,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -178,7 +182,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               explanation,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
           ],

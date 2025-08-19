@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/services.dart'; // Добавьте этот импорт
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../utils/logger.dart';
 
 enum AdResult { success, failed, dismissed, notReady, timeout }
 
@@ -42,9 +43,9 @@ class RewardedAdService {
   static Future<void> initialize() async {
     try {
       await MobileAds.instance.initialize();
-      print('✅ AdMob initialized successfully');
+      logger.i('AdMob initialized successfully');
     } catch (e) {
-      print('🚨 AdMob initialization failed: $e');
+      logger.e('AdMob initialization failed', error: e);
     }
   }
 
@@ -53,7 +54,7 @@ class RewardedAdService {
     try {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     } catch (e) {
-      print('🚨 Failed to set fullscreen mode: $e');
+      logger.e('Failed to set fullscreen mode', error: e);
     }
   }
 
@@ -65,7 +66,7 @@ class RewardedAdService {
         overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
       );
     } catch (e) {
-      print('🚨 Failed to restore normal mode: $e');
+      logger.e('Failed to restore normal mode', error: e);
     }
   }
 
@@ -95,7 +96,6 @@ class RewardedAdService {
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
-            print('✅ Rewarded ad loaded successfully');
             _rewardedAd = ad;
             _isAdReady = true;
             _isLoading = false;
@@ -105,7 +105,6 @@ class RewardedAdService {
             }
           },
           onAdFailedToLoad: (LoadAdError error) {
-            print('🚨 Rewarded ad failed to load: ${error.message}');
             _cleanup();
             if (!_loadingCompleter!.isCompleted) {
               _loadingCompleter!.complete();
@@ -118,7 +117,6 @@ class RewardedAdService {
       await _loadingCompleter!.future.timeout(_loadTimeout);
       return _isAdReady;
     } catch (e) {
-      print('🚨 Rewarded ad load error: $e');
       _cleanup();
       return false;
     } finally {
@@ -130,22 +128,16 @@ class RewardedAdService {
   void _setAdCallbacks() {
     _rewardedAd?.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
-        print('📺 Rewarded ad showed full screen');
         _adShown = true;
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
-        print('❌ Rewarded ad dismissed');
         _adDismissed = true;
         _disposeCurrentAd();
-        // Восстанавливаем нормальный режим UI
         _restoreNormalMode();
-        // Асинхронно загружаем следующую рекламу
         _loadNextAd();
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-        print('🚨 Rewarded ad failed to show: ${error.message}');
         _disposeCurrentAd();
-        // Восстанавливаем нормальный режим UI
         _restoreNormalMode();
       },
     );
@@ -154,16 +146,13 @@ class RewardedAdService {
   /// Показ рекламы с детальным логированием
   Future<AdResult> showRewardedAd() async {
     if (_isShowing) {
-      print('⚠️ Ad is already showing');
       return AdResult.failed;
     }
 
     // Проверяем готовность рекламы
     if (!_isAdReady || _rewardedAd == null) {
-      print('⏳ Ad not ready, loading...');
       final loaded = await loadRewardedAd();
       if (!loaded) {
-        print('🚨 Failed to load ad');
         return AdResult.notReady;
       }
     }
@@ -176,13 +165,9 @@ class RewardedAdService {
     final completer = Completer<AdResult>();
 
     try {
-      // Устанавливаем полноэкранный режим перед показом рекламы
       await _setFullscreenMode();
-
-      print('🎬 Showing rewarded ad...');
       await _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-          print('💰 User earned reward: ${reward.amount} ${reward.type}');
           _rewardEarned = true;
         },
       );
@@ -199,22 +184,16 @@ class RewardedAdService {
       AdResult result;
       if (_rewardEarned) {
         result = AdResult.success;
-        print('✅ Ad completed successfully with reward');
       } else if (_adShown && _adDismissed) {
         result = AdResult.dismissed;
-        print('⚠️ Ad was dismissed without reward');
       } else if (_adShown && !_rewardEarned && attempts >= 5) {
         result = AdResult.success;
-        print('✅ Ad completed (timeout assumed success)');
       } else {
         result = AdResult.failed;
-        print('🚨 Ad failed to complete');
       }
 
       completer.complete(result);
     } catch (e) {
-      print('🚨 Error showing rewarded ad: $e');
-      // Восстанавливаем нормальный режим UI при ошибке
       _restoreNormalMode();
       completer.complete(AdResult.failed);
     } finally {
@@ -226,14 +205,13 @@ class RewardedAdService {
 
   /// Асинхронная загрузка следующей рекламы
   void _loadNextAd() {
-    // Небольшая задержка перед загрузкой следующей рекламы
     Future.delayed(const Duration(seconds: 1), () {
       loadRewardedAd()
           .then((success) {
-            print('🔄 Next ad preload result: $success');
+            logger.i('Next ad preload result: $success');
           })
           .catchError((e) {
-            print('🚨 Next ad preload error: $e');
+            logger.e('Next ad preload error: $e');
           });
     });
   }

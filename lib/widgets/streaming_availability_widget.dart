@@ -5,6 +5,7 @@ import '../providers/streaming_provider.dart';
 import '../models/streaming_availability.dart';
 import '../constants/colors.dart';
 import '../constants/strings.dart';
+import '../utils/logger.dart';
 
 class StreamingAvailabilityWidget extends StatefulWidget {
   final String imdbId;
@@ -570,6 +571,8 @@ class _StreamingSourceButton extends StatelessWidget {
       final url = source.preferredUrl;
 
       if (url.isEmpty) {
+        // Защищаем вызов async метода с context
+        if (!context.mounted) return;
         await _fallbackSearch(context);
         return;
       }
@@ -581,9 +584,13 @@ class _StreamingSourceButton extends StatelessWidget {
       );
 
       if (!launched) {
+        // Защищаем вызов async метода с context
+        if (!context.mounted) return;
         await _fallbackSearch(context);
       }
     } catch (e) {
+      // Защищаем вызов async метода с context
+      if (!context.mounted) return;
       await _fallbackSearch(context);
     }
   }
@@ -593,7 +600,12 @@ class _StreamingSourceButton extends StatelessWidget {
       final query = Uri.encodeComponent('$movieTitle ${source.name}');
       final searchUrl = 'https://www.google.com/search?q=$query';
       await launchUrl(Uri.parse(searchUrl));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      logger.e(
+        'Failed to perform fallback search',
+        error: e,
+        stackTrace: stackTrace,
+      );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

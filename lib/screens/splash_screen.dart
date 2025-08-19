@@ -72,17 +72,20 @@ class _SplashScreenState extends State<SplashScreen>
     // Ждем завершения анимации сплеш-скрина
     await Future.delayed(const Duration(milliseconds: 3500));
 
+    if (!mounted) {
+      return;
+    }
+
+    // Проверяем, видел ли пользователь онбординг
+    final hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+
+    Widget nextScreen;
+    if (hasSeenOnboarding) {
+      nextScreen = const MainScreen();
+    } else {
+      nextScreen = const OnboardingScreen();
+    }
     if (mounted) {
-      // Проверяем, видел ли пользователь онбординг
-      final hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
-
-      Widget nextScreen;
-      if (hasSeenOnboarding) {
-        nextScreen = const MainScreen();
-      } else {
-        nextScreen = const OnboardingScreen();
-      }
-
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(

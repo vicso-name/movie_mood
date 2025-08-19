@@ -78,22 +78,12 @@ class StreamingService {
       if (_idMappingCache.containsKey(imdbId)) {
         return _idMappingCache[imdbId];
       }
-
       // НЕ убираем префикс 'tt' - попробуем с полным ID
       final searchImdbId = imdbId; // используем полный ID как есть
-
-      print('StreamingService: Searching for IMDB ID: $searchImdbId');
-
       final url = Uri.parse(
         '$_baseUrl/search/?apiKey=$_apiKey&search_field=imdb_id&search_value=$searchImdbId&types=movie',
       );
-
-      print('StreamingService: Request URL: $url');
-
       final response = await http.get(url).timeout(_requestTimeout);
-
-      print('StreamingService: Response status: ${response.statusCode}');
-      print('StreamingService: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -104,9 +94,7 @@ class StreamingService {
           final watchmodeId = firstResult['id']?.toString();
 
           if (watchmodeId != null) {
-            // Кешируем mapping
             _idMappingCache[imdbId] = watchmodeId;
-            print('StreamingService: Found Watchmode ID: $watchmodeId');
             return watchmodeId;
           }
         }
@@ -131,7 +119,6 @@ class StreamingService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('StreamingService: Sources response: $data');
         return data as List<dynamic>? ?? [];
       } else {
         throw _handleHttpError(response.statusCode);

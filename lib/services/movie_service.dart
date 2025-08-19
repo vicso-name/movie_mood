@@ -12,6 +12,7 @@ import 'cache_service.dart';
 import 'connectivity_service.dart';
 import 'movie_rotation_service.dart';
 import '../services/poster_validation_service.dart';
+import '../utils/logger.dart';
 
 class MovieService {
   static const String _baseUrl = ApiConfig.omdbBaseUrl;
@@ -31,7 +32,6 @@ class MovieService {
         'laugh': 0.7,
         'humor': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 2: Ð¡ÐµÐ¼ÐµÐ¹Ð½Ñ‹Ðµ Ñ„Ð¸Ð»ÑŒÐ¼Ñ‹ (Ð²ÐµÑ‡ÐµÑ€)
       {
         'family': 1.0,
         'feel good': 0.9,
@@ -39,7 +39,6 @@ class MovieService {
         'cheerful': 0.7,
         'joyful': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 3: ÐÐ½Ð¸Ð¼Ð°Ñ†Ð¸Ñ Ð¸ Ð¼ÑŽÐ·Ð¸ÐºÐ»Ñ‹ (Ð²Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ðµ)
       {
         'animation': 1.0,
         'musical': 0.9,
@@ -49,7 +48,6 @@ class MovieService {
       },
     ],
     'romantic': [
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 1: ÐšÐ»Ð°ÑÑÐ¸Ñ‡ÐµÑÐºÐ°Ñ Ñ€Ð¾Ð¼Ð°Ð½Ñ‚Ð¸ÐºÐ° (Ð²ÐµÑ‡ÐµÑ€)
       {
         'romance': 1.0,
         'love': 0.9,
@@ -57,7 +55,6 @@ class MovieService {
         'heart': 0.7,
         'passion': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 2: Ð Ð¾Ð¼Ð°Ð½Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ ÐºÐ¾Ð¼ÐµÐ´Ð¸Ð¸ (Ð´ÐµÐ½ÑŒ)
       {
         'romantic comedy': 1.0,
         'date night': 0.9,
@@ -65,7 +62,6 @@ class MovieService {
         'wedding': 0.7,
         'relationship': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 3: Ð”Ñ€Ð°Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ°Ñ Ñ€Ð¾Ð¼Ð°Ð½Ñ‚Ð¸ÐºÐ° (Ð¿Ð¾Ð·Ð´Ð½Ð¸Ð¹ Ð²ÐµÑ‡ÐµÑ€)
       {
         'love story': 1.0,
         'soulmate': 0.9,
@@ -75,7 +71,6 @@ class MovieService {
       },
     ],
     'sad': [
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 1: Ð­Ð¼Ð¾Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð´Ñ€Ð°Ð¼Ñ‹
       {
         'drama': 1.0,
         'emotional': 0.9,
@@ -83,7 +78,6 @@ class MovieService {
         'tragic': 0.7,
         'melancholy': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 2: Ðž Ð¿Ð¾Ñ‚ÐµÑ€ÑÑ… Ð¸ Ð³Ð¾Ñ€Ðµ
       {
         'loss': 1.0,
         'grief': 0.9,
@@ -91,7 +85,6 @@ class MovieService {
         'tragedy': 0.7,
         'sorrow': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 3: Ð–Ð¸Ð·Ð½ÐµÐ½Ð½Ñ‹Ðµ Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ð¸
       {
         'life story': 1.0,
         'difficult': 0.9,
@@ -101,7 +94,6 @@ class MovieService {
       },
     ],
     'cozy': [
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 1: Ð¡ÐµÐ¼ÐµÐ¹Ð½Ñ‹Ðµ Ñ„Ð¸Ð»ÑŒÐ¼Ñ‹ (Ð·Ð¸Ð¼Ð°/Ð²ÐµÑ‡ÐµÑ€)
       {
         'family': 1.0,
         'warm': 0.9,
@@ -109,7 +101,6 @@ class MovieService {
         'home': 0.7,
         'peaceful': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 2: ÐŸÑ€Ð°Ð·Ð´Ð½Ð¸Ñ‡Ð½Ñ‹Ðµ Ñ„Ð¸Ð»ÑŒÐ¼Ñ‹ (Ð·Ð¸Ð¼Ð°)
       {
         'holiday': 1.0,
         'christmas': 0.9,
@@ -117,7 +108,6 @@ class MovieService {
         'cozy': 0.7,
         'fireplace': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 3: ÐÐ¾ÑÑ‚Ð°Ð»ÑŒÐ³Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ Ñ„Ð¸Ð»ÑŒÐ¼Ñ‹
       {
         'nostalgic': 1.0,
         'childhood': 0.9,
@@ -127,7 +117,6 @@ class MovieService {
       },
     ],
     'inspiring': [
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 1: Ð‘Ð¸Ð¾Ð³Ñ€Ð°Ñ„Ð¸Ð¸ Ð¸ Ñ€ÐµÐ°Ð»ÑŒÐ½Ñ‹Ðµ Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ð¸
       {
         'biography': 1.0,
         'true story': 0.9,
@@ -135,7 +124,6 @@ class MovieService {
         'based on': 0.7,
         'documentary': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 2: ÐœÐ¾Ñ‚Ð¸Ð²Ð°Ñ†Ð¸Ð¾Ð½Ð½Ñ‹Ðµ Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ð¸
       {
         'motivational': 1.0,
         'triumph': 0.9,
@@ -143,7 +131,6 @@ class MovieService {
         'success': 0.7,
         'achievement': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 3: Ð“ÐµÑ€Ð¾Ð¸ Ð¸ Ð»Ð¸Ð´ÐµÑ€Ñ‹
       {
         'hero': 1.0,
         'leader': 0.9,
@@ -153,7 +140,6 @@ class MovieService {
       },
     ],
     'thrilling': [
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 1: Ð­ÐºÑˆÐ½ Ð¸ Ð¿Ñ€Ð¸ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ (Ð´ÐµÐ½ÑŒ)
       {
         'action': 1.0,
         'adventure': 0.9,
@@ -161,7 +147,6 @@ class MovieService {
         'fast-paced': 0.7,
         'adrenaline': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 2: Ð¢Ñ€Ð¸Ð»Ð»ÐµÑ€Ñ‹ Ð¸ ÑÐ°ÑÐ¿ÐµÐ½Ñ (Ð²ÐµÑ‡ÐµÑ€)
       {
         'thriller': 1.0,
         'suspense': 0.9,
@@ -169,7 +154,6 @@ class MovieService {
         'edge of seat': 0.7,
         'tension': 0.6,
       },
-      // Ð“Ñ€ÑƒÐ¿Ð¿Ð° 3: Ð¨Ð¿Ð¸Ð¾Ð½Ð°Ð¶ Ð¸ Ð¿Ð¾Ð³Ð¾Ð½Ð¸
       {
         'spy': 1.0,
         'chase': 0.9,
@@ -180,11 +164,9 @@ class MovieService {
     ],
   };
 
-  // ðŸ†• ÐšÐžÐÐ¢Ð•ÐšÐ¡Ð¢ÐÐÐ¯ Ð›ÐžÐ“Ð˜ÐšÐ: Ð’Ñ‹Ð±Ð¾Ñ€ Ð³Ñ€ÑƒÐ¿Ð¿Ñ‹ Ð½Ð° Ð¾ÑÐ½Ð¾Ð²Ðµ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ Ð¸ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚Ð°
   Map<String, double> _getContextualSearchTerms(String mood) {
     final groups = _moodSearchGroups[mood.toLowerCase()] ?? [];
     if (groups.isEmpty) {
-      // Fallback Ðº ÑÑ‚Ð°Ñ€Ð¾Ð¹ ÑÐ¸ÑÑ‚ÐµÐ¼Ðµ ÐµÑÐ»Ð¸ Ð³Ñ€ÑƒÐ¿Ð¿Ñ‹ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ñ‹
       return _moodSearchTerms[mood.toLowerCase()] ?? {};
     }
 
@@ -196,87 +178,73 @@ class MovieService {
 
     int groupIndex = 0;
 
-    // ðŸ• Ð›Ð¾Ð³Ð¸ÐºÐ° Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ð³Ñ€ÑƒÐ¿Ð¿Ñ‹ Ð½Ð° Ð¾ÑÐ½Ð¾Ð²Ðµ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ Ð´Ð½Ñ
     switch (mood.toLowerCase()) {
       case 'happy':
         if (hour >= 6 && hour < 12) {
-          groupIndex = 0; // Ð£Ñ‚Ñ€Ð¾Ð¼ - ÑÐ½ÐµÑ€Ð³Ð¸Ñ‡Ð½Ñ‹Ðµ ÐºÐ¾Ð¼ÐµÐ´Ð¸Ð¸
+          groupIndex = 0;
         } else if (hour >= 18 || isWeekend) {
-          groupIndex =
-              1; // Ð’ÐµÑ‡ÐµÑ€Ð¾Ð¼/Ð²Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ðµ - ÑÐµÐ¼ÐµÐ¹Ð½Ñ‹Ðµ Ñ„Ð¸Ð»ÑŒÐ¼Ñ‹
+          groupIndex = 1;
         } else {
-          groupIndex = 2; // Ð”ÐµÐ½ÑŒ - Ð°Ð½Ð¸Ð¼Ð°Ñ†Ð¸Ñ Ð¸ Ð¼ÑŽÐ·Ð¸ÐºÐ»Ñ‹
+          groupIndex = 2;
         }
         break;
 
       case 'romantic':
         if (hour >= 19 || (isWeekend && hour >= 16)) {
-          groupIndex =
-              0; // Ð’ÐµÑ‡ÐµÑ€ - ÐºÐ»Ð°ÑÑÐ¸Ñ‡ÐµÑÐºÐ°Ñ Ñ€Ð¾Ð¼Ð°Ð½Ñ‚Ð¸ÐºÐ°
+          groupIndex = 0;
         } else if (hour >= 12 && hour < 19) {
-          groupIndex =
-              1; // Ð”ÐµÐ½ÑŒ - Ñ€Ð¾Ð¼Ð°Ð½Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ ÐºÐ¾Ð¼ÐµÐ´Ð¸Ð¸
+          groupIndex = 1;
         } else {
-          groupIndex =
-              2; // ÐŸÐ¾Ð·Ð´Ð½Ð¸Ð¹ Ð²ÐµÑ‡ÐµÑ€ - Ð´Ñ€Ð°Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ°Ñ Ñ€Ð¾Ð¼Ð°Ð½Ñ‚Ð¸ÐºÐ°
+          groupIndex = 2;
         }
         break;
 
       case 'cozy':
         if (isWinter || hour >= 17) {
-          groupIndex = isWinter
-              ? 1
-              : 0; // Ð—Ð¸Ð¼Ð° - Ð¿Ñ€Ð°Ð·Ð´Ð½Ð¸Ñ‡Ð½Ñ‹Ðµ, Ð²ÐµÑ‡ÐµÑ€ - ÑÐµÐ¼ÐµÐ¹Ð½Ñ‹Ðµ
+          groupIndex = isWinter ? 1 : 0;
         } else {
-          groupIndex = 2; // ÐÐ¾ÑÑ‚Ð°Ð»ÑŒÐ³Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ
+          groupIndex = 2;
         }
         break;
 
       case 'inspiring':
         if (hour >= 6 && hour < 12) {
-          groupIndex = 1; // Ð£Ñ‚Ñ€Ð¾Ð¼ - Ð¼Ð¾Ñ‚Ð¸Ð²Ð°Ñ†Ð¸Ð¾Ð½Ð½Ñ‹Ðµ
+          groupIndex = 1;
         } else if (isWeekend) {
-          groupIndex = 0; // Ð’Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ðµ - Ð±Ð¸Ð¾Ð³Ñ€Ð°Ñ„Ð¸Ð¸
+          groupIndex = 0;
         } else {
-          groupIndex = 2; // Ð“ÐµÑ€Ð¾Ð¸ Ð¸ Ð»Ð¸Ð´ÐµÑ€Ñ‹
+          groupIndex = 2;
         }
         break;
 
       case 'thrilling':
         if (hour >= 6 && hour < 18) {
-          groupIndex = 0; // Ð”ÐµÐ½ÑŒ - ÑÐºÑˆÐ½ Ð¸ Ð¿Ñ€Ð¸ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ
+          groupIndex = 0;
         } else if (hour >= 18 && hour < 22) {
-          groupIndex = 1; // Ð’ÐµÑ‡ÐµÑ€ - Ñ‚Ñ€Ð¸Ð»Ð»ÐµÑ€Ñ‹
+          groupIndex = 1;
         } else {
-          groupIndex = 2; // ÐŸÐ¾Ð·Ð´Ð½Ð¾ - ÑˆÐ¿Ð¸Ð¾Ð½Ð°Ð¶
+          groupIndex = 2;
         }
         break;
 
       case 'sad':
         if (hour >= 20 || isWeekend) {
-          groupIndex =
-              0; // Ð’ÐµÑ‡ÐµÑ€/Ð²Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ðµ - ÑÐ¼Ð¾Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð´Ñ€Ð°Ð¼Ñ‹
+          groupIndex = 0;
         } else if (hour >= 14 && hour < 18) {
-          groupIndex = 1; // ÐŸÐ¾ÑÐ»Ðµ Ð¾Ð±ÐµÐ´Ð° - Ð¾ Ð¿Ð¾Ñ‚ÐµÑ€ÑÑ…
+          groupIndex = 1;
         } else {
-          groupIndex = 2; // Ð–Ð¸Ð·Ð½ÐµÐ½Ð½Ñ‹Ðµ Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ð¸
+          groupIndex = 2;
         }
         break;
     }
 
-    // ðŸŽ² Ð”Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ ÑÐ»ÑƒÑ‡Ð°Ð¹Ð½Ð¾ÑÑ‚Ð¸ (30% ÑˆÐ°Ð½Ñ Ð²Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð´Ñ€ÑƒÐ³ÑƒÑŽ Ð³Ñ€ÑƒÐ¿Ð¿Ñƒ)
     if (Random().nextDouble() < 0.3 && groups.length > 1) {
       final availableGroups = List.generate(groups.length, (i) => i);
       availableGroups.remove(groupIndex);
       groupIndex = availableGroups[Random().nextInt(availableGroups.length)];
     }
 
-    // ðŸ“Š Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½ÑƒÑŽ Ð³Ñ€ÑƒÐ¿Ð¿Ñƒ Ñ‚ÐµÑ€Ð¼Ð¸Ð½Ð¾Ð²
     final selectedGroup = groups[groupIndex.clamp(0, groups.length - 1)];
-
-    print(
-      'ðŸŽ¯ Mood: $mood, Hour: $hour, Group: $groupIndex, Terms: ${selectedGroup.keys.take(3).join(", ")}',
-    );
 
     return selectedGroup;
   }
@@ -482,7 +450,6 @@ class MovieService {
     }
   }
 
-  // 📊 Получить статистику топ-фильмов
   Map<String, dynamic> getTopMoviesStats() {
     return TopMoviesDatabase.getDatabaseStats();
   }
@@ -560,7 +527,6 @@ class MovieService {
     }
   }
 
-  // ÐŸÐ¾Ð¸ÑÐº Ñ‚Ð¾Ñ‡Ð½Ð¾Ð³Ð¾ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ñ Ñ„Ð¸Ð»ÑŒÐ¼Ð° Ñ Ñ‚Ð°Ð¹Ð¼Ð°ÑƒÑ‚Ð¾Ð¼
   Future<Movie?> _searchExactTitle(String title) async {
     try {
       final url = Uri.parse(
@@ -628,8 +594,6 @@ class MovieService {
         throw AppError.network();
       }
 
-      print('🎬 Starting smart mood search for: $mood');
-
       final searchTermsMap = _getContextualSearchTerms(mood);
       final searchTerms = searchTermsMap.entries.toList();
 
@@ -648,7 +612,6 @@ class MovieService {
 
         try {
           final movies = await _searchMovies(term);
-          print('🎥 Found ${movies.length} movies for term: "$term"');
 
           for (final movie in movies) {
             final relevanceScore = _calculateMoodRelevance(
@@ -664,8 +627,6 @@ class MovieService {
 
         await Future.delayed(const Duration(milliseconds: 300));
       }
-
-      print('Total movies collected: ${allMoviesWithScores.length}');
 
       final Map<String, MovieWithScore> uniqueMovies = {};
       for (final movieWithScore in allMoviesWithScores) {
@@ -685,21 +646,13 @@ class MovieService {
       List<Movie> result = sortedMovies.map((mws) => mws.movie).toList();
 
       // 🔥 ЭТАП 1: Быстрая фильтрация по базовым критериям
-      print('Before basic filtering: ${result.length} movies');
       result = result.where((movie) => movie.hasBasicPosterUrl).toList();
-      print('After basic filtering: ${result.length} movies');
 
       // 🔥 ЭТАП 2: Проверка кешированных результатов валидации
       result = _posterValidator.validateMoviePostersSync(result);
-      print('After sync validation: ${result.length} movies');
 
       // 🔥 ЭТАП 3: Если фильмов мало - асинхронная валидация постеров
       if (result.length < 8) {
-        print(
-          '⚠️ Too few movies after filtering, performing full poster validation...',
-        );
-
-        // Берем больше фильмов для валидации
         final extendedList = sortedMovies
             .map((mws) => mws.movie)
             .where((movie) => movie.hasBasicPosterUrl)
@@ -707,17 +660,11 @@ class MovieService {
             .toList();
 
         // Валидируем постеры
-        result = await _posterValidator.validateMoviePosters(
-          extendedList,
-          onProgress: (current, total) {
-            print('Validating posters: $current/$total');
-          },
-        );
+        result = await _posterValidator.validateMoviePosters(extendedList);
       }
 
       // Если после всей валидации осталось мало фильмов, загружаем дополнительные
       if (result.length < 5) {
-        print('⚠️ Still too few movies, loading additional...');
         await _loadAdditionalMoviesWithPosters(mood, result);
       }
 
@@ -727,25 +674,21 @@ class MovieService {
           mood.toLowerCase(),
           result,
         );
-
-        if (result.length < sortedMovies.length * 0.5) {
-          print(
-            'Rotation filtered many movies (${sortedMovies.length} → ${result.length})',
-          );
-        }
-      } catch (e) {
-        print('Error in rotation service: $e, proceeding without rotation');
+      } catch (e, stackTrace) {
+        logger.e(
+          'Error in rotation service, proceeding without rotation',
+          error: e,
+          stackTrace: stackTrace,
+        );
       }
 
       if (result.length > 10) {
         try {
           result = _rotationService.addRandomness(result, 0.2);
-        } catch (e) {
-          print('Error adding randomness: $e');
+        } catch (e, stackTrace) {
+          logger.e('Error adding randomness', error: e, stackTrace: stackTrace);
         }
       }
-
-      print('Found ${result.length} movies for mood: $mood');
 
       final finalResult = _shuffleByGroups(result.take(20).toList());
 
@@ -755,26 +698,21 @@ class MovieService {
             mood.toLowerCase(),
             finalResult.take(8).toList(),
           );
-          print(
-            'Marked ${min(8, finalResult.length)} movies as shown for future rotation',
+        } catch (e, stackTrace) {
+          logger.e(
+            'Error marking movies as shown',
+            error: e,
+            stackTrace: stackTrace,
           );
-        } catch (e) {
-          print('Error marking movies as shown: $e');
         }
       }
 
       if (finalResult.isEmpty) {
-        print('No movies found after all processing');
         throw AppError.notFound();
       }
 
-      print(
-        'Top movies: ${finalResult.take(3).map((m) => m.title).join(", ")}',
-      );
-
       return finalResult;
     } catch (e) {
-      print('Error in getMoviesByMood: $e');
       throw _handleError(e);
     }
   }
@@ -810,9 +748,6 @@ class MovieService {
               .toList();
 
           currentResults.addAll(newMovies.take(5));
-          print(
-            '🎯 Added ${newMovies.take(5).length} additional validated movies',
-          );
 
           await Future.delayed(const Duration(milliseconds: 500));
         } catch (e) {
@@ -820,7 +755,7 @@ class MovieService {
         }
       }
     } catch (e) {
-      print('Error loading additional movies: $e');
+      logger.e('Error loading additional movies', error: e);
     }
   }
 
@@ -954,10 +889,6 @@ class MovieService {
         moviesWithBasicUrls.take(15).toList(),
       );
 
-      print(
-        'Random movies: ${allMovies.length} total, ${validatedMovies.length} with valid posters',
-      );
-
       return validatedMovies;
     } catch (e) {
       throw _handleError(e);
@@ -999,7 +930,7 @@ class MovieService {
 
     for (int i = 0; i < min(15, searchResults.length); i++) {
       final imdbId = searchResults[i]['imdbID'];
-      futures.add(getMovieDetails(imdbId)); // Добавляем Future в список
+      futures.add(getMovieDetails(imdbId));
     }
 
     // Запускаем все запросы одновременно
@@ -1088,12 +1019,8 @@ class MovieService {
 
   Future<void> clearCache({bool clearRotation = false}) async {
     await _cacheService.clearCache();
-
     if (clearRotation) {
       await _rotationService.resetAllHistory();
-      print('Cleared cache and rotation history');
-    } else {
-      print('Cleared cache (rotation history preserved)');
     }
   }
 

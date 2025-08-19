@@ -3,6 +3,7 @@ import '../models/streaming_availability.dart';
 import '../models/app_error.dart';
 import '../services/streaming_service.dart';
 import '../services/rewarded_ad_service.dart';
+import '../utils/logger.dart';
 
 enum StreamingLoadingState {
   idle,
@@ -125,8 +126,6 @@ class StreamingProvider extends ChangeNotifier {
       _setState(StreamingLoadingState.locked);
       return;
     }
-    // Стратегия 2: Если перезагрузка не помогла - разблокируем контент
-    print('🆓 FALLBACK: Unable to load ads, unlocking content for user');
     _isUnlockedForCurrentMovie = true;
     _setState(StreamingLoadingState.unlocked);
     _preloadNextAd();
@@ -137,10 +136,10 @@ class StreamingProvider extends ChangeNotifier {
     RewardedAdService.instance
         .loadRewardedAd()
         .then((success) {
-          print('📱 Next ad preload result: $success');
+          logger.i('Next ad preload result: $success');
         })
         .catchError((e) {
-          print('🚨 Next ad preload failed: $e');
+          logger.e('Next ad preload failed', error: e);
         });
   }
 

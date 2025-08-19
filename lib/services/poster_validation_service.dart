@@ -96,10 +96,8 @@ class PosterValidationService {
     return validatedMovies;
   }
 
-  ///Быстрая валидация (только уже известные результаты)
   List<Movie> validateMoviePostersSync(List<Movie> movies) {
     return movies.where((movie) {
-      // Если нет базового URL - исключаем
       if (!movie.hasBasicPosterUrl) return false;
       if (movie.isPosterValidationCached) {
         return movie.hasValidPoster;

@@ -23,7 +23,7 @@ class MoodCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(mood.emoji, style: const TextStyle(fontSize: 48)),
+            Icon(mood.icon, size: 48, color: mood.color),
             const SizedBox(height: 12),
             Text(
               mood.name,

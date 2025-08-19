@@ -30,11 +30,11 @@ Future<void> main() async {
     overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
   );
 
-  // Инициализируем AdMob
-  await RewardedAdService.initialize();
-
-  // Загружаем .env файл
-  await dotenv.load(fileName: ".env");
+  // Запускаем инициализации параллельно
+  await Future.wait([
+    RewardedAdService.initialize(),
+    dotenv.load(fileName: ".env"),
+  ]);
 
   // Предзагружаем первую рекламу
   RewardedAdService.instance.loadRewardedAd();

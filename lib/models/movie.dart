@@ -62,16 +62,21 @@ class Movie {
 
   // 🔥 БАЗОВАЯ ПРОВЕРКА: Только структура URL (быстрая)
   bool get hasBasicPosterUrl {
-    if (poster == null || poster!.isEmpty) return false;
+    if (poster == null || poster!.isEmpty) {
+      return false;
+    }
 
     // Проверяем, что это не placeholder URL
     if (poster!.contains('placeholder.com') ||
-        poster!.contains('via.placeholder.com'))
+        poster!.contains('via.placeholder.com')) {
       return false;
+    }
 
     // Проверяем, что URL выглядит валидно
     final uri = Uri.tryParse(poster!);
-    if (uri == null || !uri.hasScheme) return false;
+    if (uri == null || !uri.hasScheme) {
+      return false;
+    }
 
     return true;
   }
