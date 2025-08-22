@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 import 'providers/movie_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/search_provider.dart';
@@ -14,7 +15,6 @@ import 'screens/splash_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Настройка системного UI для корректного отображения fullscreen контента
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -24,19 +24,16 @@ Future<void> main() async {
     ),
   );
 
-  // Разрешаем fullscreen режим для рекламы
   await SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
   );
 
-  // Запускаем инициализации параллельно
   await Future.wait([
     RewardedAdService.initialize(),
     dotenv.load(fileName: ".env"),
   ]);
 
-  // Предзагружаем первую рекламу
   RewardedAdService.instance.loadRewardedAd();
 
   runApp(const MyApp());
@@ -90,7 +87,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const SplashScreen(),
+        home: UpgradeAlert(child: const SplashScreen()),
       ),
     );
   }

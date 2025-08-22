@@ -22,6 +22,7 @@ dependencies:
   google_mobile_ads: ^5.2.0
   share_plus: ^7.2.2
   logger: ^2.0.2+1
+  upgrader: ^11.5.0
 
 dev_dependencies:
   flutter_test:

@@ -25,7 +25,7 @@ class RewardedAdService {
 
   // Production ad unit IDs - замените на реальные ID
   static const String _androidAdUnitId =
-      'ca-app-pub-3940256099942544/5224354917';
+      'ca-app-pub-7684581617163789/1856672762';
   static const String _iosAdUnitId = 'ca-app-pub-3940256099942544/1712485313';
 
   static const Duration _loadTimeout = Duration(seconds: 8);
